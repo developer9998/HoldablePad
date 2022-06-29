@@ -33,7 +33,7 @@ namespace HoldablePad
                 handheldObject.GetComponent<Text>().enabled = false; // hide pls
                 handheldObject.name = handhelds.transform.GetChild(i).name;
 
-                bool isLeft = handheldInfo[3] == "true";
+                bool isLeft = handheldInfo[3] == "True";
                 if (isLeft)
                 {
                     handheldObject.transform.SetParent(leftHandObject.transform, false);

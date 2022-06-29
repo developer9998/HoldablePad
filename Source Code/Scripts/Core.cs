@@ -69,6 +69,27 @@ namespace HoldablePad
                 objects[i].GetComponent<Text>().enabled = false; // hide pls
 
                 objects[i].name = handheldInfo[0] + handheldInfo[1] + handheldInfo[2] + handheldInfo[3] + fileNames[i];
+
+                var audioSources = objects[i].transform.GetComponentsInChildren<AudioSource>();
+
+                if (audioSources != null)
+                {
+
+                    foreach (var source in audioSources)
+                    {
+                        if (source.volume > 0.1f)
+                        {
+                            source.volume = 0.1f; // so its not loud ingame
+                        }
+
+                        if (objects[i].transform.Find("withSounds") == null) 
+                        {
+                            GameObject tinotin = new GameObject();
+                            tinotin.name = "withSounds";
+                            tinotin.transform.SetParent(objects[i].transform, false);
+                        }
+                    }
+                }
             }
 
             HoldableManager.Load();

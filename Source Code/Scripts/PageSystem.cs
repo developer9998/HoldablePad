@@ -71,11 +71,18 @@ namespace HoldablePad
         {
             if (indie == 1)
             {
-                GameObject shit = pageObject.transform.GetChild(indie).Find("PUT").gameObject;
+                GameObject shit = pageObject.transform.GetChild(indie).Find("Previews/left/HOLDABLE").gameObject;
 
                 for (int i = 0; i < shit.transform.childCount; i++)
                 {
                     Destroy(shit.transform.GetChild(i).gameObject);
+                }
+
+                GameObject shit2 = pageObject.transform.GetChild(indie).Find("Previews/right/HOLDABLE").gameObject;
+
+                for (int i = 0; i < shit2.transform.childCount; i++)
+                {
+                    Destroy(shit2.transform.GetChild(i).gameObject);
                 }
 
                 if (current != "")
@@ -103,13 +110,47 @@ namespace HoldablePad
                     for (int i = 0; i < files.Length; i++)
                     {
                         GameObject objec = Instantiate(Core.hahahah.transform.GetChild(i).gameObject);
-                        objec.transform.position = Vector3.zero;
                         objec.name = Core.hahahah.transform.GetChild(i).gameObject.name;
-                        objec.transform.rotation = Quaternion.identity;
-                        objec.transform.localScale = Vector3.one * 1.5f;
-                        objec.transform.SetParent(pageObject.transform.GetChild(indie).Find("PUT"), false);
+                       // objec.transform.SetParent(pageObject.transform.GetChild(indie).Find("PUT"), false);
                         bool isThe = Hahaha == i;
                         objec.SetActive(isThe);
+
+                        AudioSource[] audioSources = objec.transform.GetComponentsInChildren<AudioSource>();
+
+                        if (isThe)
+                        {
+                            pageObject.transform.GetChild(indie).Find("Canvas/SOURCE").GetComponent<Text>().enabled = false;
+                            for (int E = 0; E < objec.transform.childCount; E++)
+                            {
+                                if (objec.transform.GetChild(E).name == "withSounds")
+                                {
+                                    //Debug.Log("Has sounds");
+                                    pageObject.transform.GetChild(indie).Find("Canvas/SOURCE").GetComponent<Text>().enabled = true;
+                                }
+                            }
+                        }
+
+                        if (audioSources.Length != 0)
+                        {
+                            foreach (var source in audioSources)
+                            {
+                                source.playOnAwake = false;
+                                source.Stop();
+                            }
+                        }
+
+                        string info_stream2 = objec.transform.GetComponent<Text>().text;
+                        string[] hand_info2 = info_stream2.Split('$');
+
+                        if (hand_info2[3] == "True")
+                        {
+                            objec.transform.SetParent(pageObject.transform.GetChild(indie).Find("Previews/left/HOLDABLE"), false);
+                        }
+                        else
+                        {
+                            objec.transform.SetParent(pageObject.transform.GetChild(indie).Find("Previews/right/HOLDABLE"), false);
+                        }
+
 
                         if (isThe)
                         {
@@ -121,11 +162,22 @@ namespace HoldablePad
                             pageObject.transform.GetChild(indie).Find("Canvas/GameObject (3)").GetComponent<Text>().text = "DESCRIPTION: " + hand_info[2];
                             if (EQUIP)
                             {
-                                pageObject.transform.GetChild(indie).Find("Canvas/View (1)/Text").GetComponent<Text>().text = $"{(hand_info[3] == "true" ? "Equip   (Left Hand)" : "Equip  (Right Hand)")}";
+                                pageObject.transform.GetChild(indie).Find("Canvas/View (1)/Text").GetComponent<Text>().text = $"{(hand_info[3] == "True" ? "Equip   (Left Hand)" : "Equip  (Right Hand)")}";
                             }
                             else
                             {
                                 pageObject.transform.GetChild(indie).Find("Canvas/View (1)/Text").GetComponent<Text>().text = "Unequip";
+                            }
+
+                            if (hand_info[3] == "True")
+                            {
+                                pageObject.transform.GetChild(indie).Find("Previews/left").gameObject.SetActive(true);
+                                pageObject.transform.GetChild(indie).Find("Previews/right").gameObject.SetActive(false);
+                            }
+                            else
+                            {
+                                pageObject.transform.GetChild(indie).Find("Previews/left").gameObject.SetActive(false);
+                                pageObject.transform.GetChild(indie).Find("Previews/right").gameObject.SetActive(true);
                             }
 
                         }
