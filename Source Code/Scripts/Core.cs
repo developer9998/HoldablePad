@@ -90,6 +90,17 @@ namespace HoldablePad
                         }
                     }
                 }
+
+                var colliders = objects[i].transform.GetComponentsInChildren<Collider>();
+
+                if (colliders != null)
+                {
+                    foreach (var collider in colliders)
+                    {
+                        collider.enabled = false;
+                        collider.gameObject.layer = 8; // ground
+                    }
+                }
             }
 
             HoldableManager.Load();
