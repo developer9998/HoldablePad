@@ -13,6 +13,19 @@
   </ItemGroup>
 
   <ItemGroup>
+	  <Reference Include="Bepinject">
+		  <HintPath>$(PluginsPath)\Bepinject-Auros\Bepinject.dll</HintPath>
+	  </Reference>
+	  <Reference Include="ComputerInterface">
+		  <HintPath>$(PluginsPath)\ComputerInterface\ComputerInterface.dll</HintPath>
+	  </Reference>
+	  <Reference Include="Zenject">
+		  <HintPath>$(PluginsPath)\Extenject\Zenject.dll</HintPath>
+	  </Reference>
+	  <Reference Include="Zenject-usage">
+		  <HintPath>$(PluginsPath)\Extenject\Zenject-usage.dll</HintPath>
+	  </Reference>
+	  
     <Reference Include="0Harmony">
       <HintPath>$(BepInExAssemblyPath)\0Harmony.dll</HintPath>
     </Reference>

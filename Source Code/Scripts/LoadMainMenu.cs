@@ -2,7 +2,7 @@
 
 namespace HoldablePad
 {
-    public class LoadButton : MonoBehaviour
+    public class LoadMainMenu : MonoBehaviour
     {
         //public override void ButtonActivation()
         //{
@@ -12,7 +12,7 @@ namespace HoldablePad
 
         void Start() // fuck it
         {
-            PageSystem.Load(1);
+            HoldablePage.Load(1);
         }
     }
 }

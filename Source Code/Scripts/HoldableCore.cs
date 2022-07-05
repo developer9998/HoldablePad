@@ -6,7 +6,7 @@ using System.Reflection;
 
 namespace HoldablePad
 {
-    public class Core : MonoBehaviour
+    public class HoldableCore : MonoBehaviour
     {
         public static GameObject tabletObject;
         public static string[] files;
@@ -32,9 +32,9 @@ namespace HoldablePad
 
             hahahah = new GameObject();
             hahahah.name = "Holdable";
-            tabletObject.AddComponent<PageSystem>();
+            tabletObject.AddComponent<HoldablePage>();
             tabletObject.transform.Find("Pages/MainScreen/Canvas/LoadHoldables/GameObject").gameObject.layer = 18;
-            tabletObject.transform.Find("Pages/MainScreen/Canvas/LoadHoldables/GameObject").gameObject.AddComponent<LoadButton>();
+            tabletObject.transform.Find("Pages/MainScreen/Canvas/LoadHoldables/GameObject").gameObject.AddComponent<LoadMainMenu>();
 
             string holdablePath = Path.Combine(Directory.GetCurrentDirectory().ToString(), "BepInEx", "Plugins", "HoldablePad", "CustomHoldables");
 
@@ -98,7 +98,22 @@ namespace HoldablePad
                     foreach (var collider in colliders)
                     {
                         collider.enabled = false;
-                        collider.gameObject.layer = 8; // ground
+                        collider.isTrigger = true;
+                    }
+                }
+
+                for (int garilla = 0; garilla < handheldInfo.Length; garilla++)
+                {
+                    if (garilla == 4)
+                    {
+                        if (handheldInfo[4] != null)
+                        {
+                            if (handheldInfo[4] == "True")
+                            {
+                                objects[i].AddComponent<HoldableCustomColour>();
+                            }
+                        }
+
                     }
                 }
             }
@@ -122,13 +137,14 @@ namespace HoldablePad
         bool buttonDown;
         bool canToggle = true;
         bool isActivate = false;
-        GameObject objecto;
+        GameObject pad;
 
         void Start()
         {
-            objecto = gameObject.transform.GetChild(0).gameObject;
+            pad = gameObject.transform.GetChild(0).gameObject;
             canToggle = true;
             isActivate = false;
+            pad.SetActive(false);
         }
 
         void Update()
@@ -139,12 +155,30 @@ namespace HoldablePad
             {
                 canToggle = false;
                 isActivate = !isActivate;
+                Toggle();
             }
             else if (!buttonDown && !canToggle)
             {
                 canToggle = true;
             }
-            objecto.SetActive(isActivate);
+        }
+
+        void Toggle()
+        {
+            if (pad.activeInHierarchy == true)
+            {
+                var images = pad.transform.GetComponentsInChildren<Image>();
+
+                if (images != null)
+                {
+                    foreach (var image in images)
+                    {
+                        image.color = Color.white;
+                    }
+                }
+            }
+
+            pad.SetActive(isActivate);
         }
     }
 }

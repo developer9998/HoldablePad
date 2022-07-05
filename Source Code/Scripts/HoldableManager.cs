@@ -22,7 +22,7 @@ namespace HoldablePad
             rightHandObject.transform.localRotation = Quaternion.identity;
             rightHandObject.transform.localScale = Vector3.one;
 
-            GameObject handhelds = Core.hahahah;
+            GameObject handhelds = HoldableCore.hahahah;
 
             for (int i = 0; i < handhelds.transform.childCount; i++)
             {
@@ -43,35 +43,72 @@ namespace HoldablePad
                     handheldObject.transform.SetParent(rightHandObject.transform, false);
                 }
                 handheldObject.SetActive(false);
-
             }
         }
 
-        public static void ShowName(string nam)
+        public static void ShowName(string nam, bool isLeftHand)
         {
-            for (int i = 0; i < rightHandObject.transform.childCount; i++)
+            if (isLeftHand)
             {
-                bool showOrNo = rightHandObject.transform.GetChild(i).gameObject.name == nam;
-                rightHandObject.transform.GetChild(i).gameObject.SetActive(showOrNo);
+                for (int i = 0; i < leftHandObject.transform.childCount; i++)
+                {
+                    bool showOrNo = leftHandObject.transform.GetChild(i).gameObject.name == nam;
+                    leftHandObject.transform.GetChild(i).gameObject.SetActive(showOrNo);
+                }
             }
-
-            for (int i = 0; i < leftHandObject.transform.childCount; i++)
+            else
             {
-                bool showOrNo = leftHandObject.transform.GetChild(i).gameObject.name == nam;
-                leftHandObject.transform.GetChild(i).gameObject.SetActive(showOrNo);
+                for (int i = 0; i < rightHandObject.transform.childCount; i++)
+                {
+                    bool showOrNo = rightHandObject.transform.GetChild(i).gameObject.name == nam;
+                    rightHandObject.transform.GetChild(i).gameObject.SetActive(showOrNo);
+                }
             }
         }
 
-        public static void UnequipAll()
+        public static void IsEquipped(string theName)
         {
-            for (int i = 0; i < rightHandObject.transform.childCount; i++)
-            {
-                rightHandObject.transform.GetChild(i).gameObject.SetActive(false);
-            }
-
+            HoldablePage.EQUIP = false;
             for (int i = 0; i < leftHandObject.transform.childCount; i++)
             {
-                leftHandObject.transform.GetChild(i).gameObject.SetActive(false);
+                if (theName == leftHandObject.transform.GetChild(i).gameObject.name)
+                {
+                    if (leftHandObject.transform.GetChild(i).gameObject.activeInHierarchy == false)
+                    {
+                        HoldablePage.EQUIP = true;
+                        HoldablePage.current = leftHandObject.transform.GetChild(i).gameObject.name;
+                    }
+                }
+            }
+
+            for (int i = 0; i < rightHandObject.transform.childCount; i++)
+            {
+                if (theName == rightHandObject.transform.GetChild(i).gameObject.name)
+                {
+                    if (rightHandObject.transform.GetChild(i).gameObject.activeInHierarchy == false)
+                    {
+                        HoldablePage.EQUIP = true;
+                        HoldablePage.current = rightHandObject.transform.GetChild(i).gameObject.name;
+                    }
+                }
+            }
+        }
+
+        public static void UnequipAll(bool isLeftHand)
+        {
+            if (isLeftHand)
+            {
+                for (int i = 0; i < leftHandObject.transform.childCount; i++)
+                {
+                    leftHandObject.transform.GetChild(i).gameObject.SetActive(false);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < rightHandObject.transform.childCount; i++)
+                {
+                    rightHandObject.transform.GetChild(i).gameObject.SetActive(false);
+                }
             }
         }
 

@@ -20,7 +20,7 @@ namespace HoldablePad
 
         void OnGameInitialized(object sender, EventArgs e)
         {
-            Core.LaunchHoldablePad();
+            HoldableCore.LaunchHoldablePad();
         }
     }
 }

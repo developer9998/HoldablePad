@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace HoldablePad
 {
-    public class GorillaPressableButtonRightHand : MonoBehaviour
+    public class HoldableButton : MonoBehaviour
     {
         public Material pressedMaterial;
 
