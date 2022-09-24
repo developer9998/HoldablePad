@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Runtime.CompilerServices;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace HoldablePad
@@ -128,9 +129,9 @@ namespace HoldablePad
         static Transform GetPalm(bool isLeftHand)
         {
             if (isLeftHand)
-                return GameObject.Find("OfflineVRRig/Actual Gorilla/rig/body/shoulder.L/upper_arm.L/forearm.L/hand.L/palm.01.L/").transform;
+                return GorillaTagger.Instance.offlineVRRig.leftHandTransform.parent.Find("palm.01.L");
             else
-                return GameObject.Find("OfflineVRRig/Actual Gorilla/rig/body/shoulder.R/upper_arm.R/forearm.R/hand.R/palm.01.R/").transform;
+                return GorillaTagger.Instance.offlineVRRig.rightHandTransform.parent.Find("palm.01.R");
         }
     }
 }

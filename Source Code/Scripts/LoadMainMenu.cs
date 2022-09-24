@@ -12,7 +12,7 @@ namespace HoldablePad
 
         void Start() // fuck it
         {
-            HoldablePage.Load(1);
+            HoldablePage.Instance.Load(1);
         }
     }
 }

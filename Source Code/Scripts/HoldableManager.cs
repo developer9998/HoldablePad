@@ -68,15 +68,15 @@ namespace HoldablePad
 
         public static void IsEquipped(string theName)
         {
-            HoldablePage.EQUIP = false;
+            HoldablePage.Instance.EQUIP = false;
             for (int i = 0; i < leftHandObject.transform.childCount; i++)
             {
                 if (theName == leftHandObject.transform.GetChild(i).gameObject.name)
                 {
                     if (leftHandObject.transform.GetChild(i).gameObject.activeInHierarchy == false)
                     {
-                        HoldablePage.EQUIP = true;
-                        HoldablePage.current = leftHandObject.transform.GetChild(i).gameObject.name;
+                        HoldablePage.Instance.EQUIP = true;
+                        HoldablePage.Instance.current = leftHandObject.transform.GetChild(i).gameObject.name;
                     }
                 }
             }
@@ -87,8 +87,8 @@ namespace HoldablePad
                 {
                     if (rightHandObject.transform.GetChild(i).gameObject.activeInHierarchy == false)
                     {
-                        HoldablePage.EQUIP = true;
-                        HoldablePage.current = rightHandObject.transform.GetChild(i).gameObject.name;
+                        HoldablePage.Instance.EQUIP = true;
+                        HoldablePage.Instance.current = rightHandObject.transform.GetChild(i).gameObject.name;
                     }
                 }
             }
@@ -115,9 +115,9 @@ namespace HoldablePad
         static Transform GetPalm(bool isLeftHand)
         {
             if (isLeftHand)
-                return GameObject.Find("OfflineVRRig/Actual Gorilla/rig/body/shoulder.L/upper_arm.L/forearm.L/hand.L/palm.01.L/").transform;
+                return GorillaTagger.Instance.offlineVRRig.leftHandTransform.parent.Find("palm.01.L");
             else
-                return GameObject.Find("OfflineVRRig/Actual Gorilla/rig/body/shoulder.R/upper_arm.R/forearm.R/hand.R/palm.01.R/").transform;
+                return GorillaTagger.Instance.offlineVRRig.rightHandTransform.parent.Find("palm.01.R");
         }
     }
 }

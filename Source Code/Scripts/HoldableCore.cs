@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.XR;
 using System.IO;
 using System.Reflection;
+using System.Collections.Generic;
 
 namespace HoldablePad
 {
@@ -11,8 +12,12 @@ namespace HoldablePad
         public static GameObject tabletObject;
         public static string[] files;
         public static GameObject hahahah;
-        public static void LaunchHoldablePad()
+        public static List<HoldableCustomColour> holdableCustomColour = new List<HoldableCustomColour>();
+
+        public void LaunchHoldablePad()
         {
+            holdableCustomColour.Clear();
+
             Stream manifestResourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("HoldablePad.Resources.holdable");
             AssetBundle assetBundle = AssetBundle.LoadFromStream(manifestResourceStream);
 
@@ -20,11 +25,9 @@ namespace HoldablePad
             otherObject.transform.position = new Vector3(0.022f, 0.079f, 0.028f);
             otherObject.transform.rotation = Quaternion.Euler(-80.107f, -92.353f, 9.068001f);
             otherObject.transform.localScale = new Vector3(0.158782f, 0.158782f, 0.158782f);
-            otherObject.transform.SetParent(GetPalm(true), false);
+            //otherObject.transform.SetParent(GetPalm(true), false);
 
-            GameObject obj = assetBundle.LoadAsset<GameObject>("menu");
-
-            tabletObject = Instantiate(obj);
+            tabletObject = Instantiate(assetBundle.LoadAsset<GameObject>("menu"));
             tabletObject.transform.position = Vector3.zero;
             tabletObject.transform.rotation = Quaternion.identity;
             tabletObject.transform.localScale = Vector3.one;
@@ -39,9 +42,7 @@ namespace HoldablePad
             string holdablePath = Path.Combine(Directory.GetCurrentDirectory().ToString(), "BepInEx", "Plugins", "HoldablePad", "CustomHoldables");
 
             if (!Directory.Exists(holdablePath))
-            {
                 Directory.CreateDirectory(holdablePath);
-            }
 
             files = Directory.GetFiles(holdablePath, "*.holdable");
             string[] fileNames = new string[files.Length];
@@ -78,15 +79,13 @@ namespace HoldablePad
                     foreach (var source in audioSources)
                     {
                         if (source.volume > 0.1f)
-                        {
                             source.volume = 0.1f; // so its not loud ingame
-                        }
 
                         if (objects[i].transform.Find("withSounds") == null) 
                         {
-                            GameObject tinotin = new GameObject();
-                            tinotin.name = "withSounds";
-                            tinotin.transform.SetParent(objects[i].transform, false);
+                            GameObject pinkTinotin = new GameObject();
+                            pinkTinotin.name = "withSounds";
+                            pinkTinotin.transform.SetParent(objects[i].transform, false);
                         }
                     }
                 }
@@ -110,7 +109,8 @@ namespace HoldablePad
                         {
                             if (handheldInfo[4] == "True")
                             {
-                                objects[i].AddComponent<HoldableCustomColour>();
+                                HoldableCustomColour holdableCustomColourTemp = objects[i].AddComponent<HoldableCustomColour>();
+                                holdableCustomColour.Add(holdableCustomColourTemp);
                             }
                         }
 
@@ -126,9 +126,9 @@ namespace HoldablePad
         static Transform GetPalm(bool isLeftHand)
         {
             if (isLeftHand)
-                return GameObject.Find("OfflineVRRig/Actual Gorilla/rig/body/shoulder.L/upper_arm.L/forearm.L/hand.L/palm.01.L/").transform;
+                return GorillaTagger.Instance.offlineVRRig.leftHandTransform.parent.Find("palm.01.L");
             else
-                return GameObject.Find("OfflineVRRig/Actual Gorilla/rig/body/shoulder.R/upper_arm.R/forearm.R/hand.R/palm.01.R/").transform;
+                return GorillaTagger.Instance.offlineVRRig.rightHandTransform.parent.Find("palm.01.R");
         }
     }
 

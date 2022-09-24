@@ -4,6 +4,7 @@ using UnityEngine.XR;
 using System.IO;
 using System.Reflection;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace HoldablePad
 {
@@ -12,6 +13,7 @@ namespace HoldablePad
         public static GameObject tabletObject;
         public static string[] files;
         public static GameObject hahahah;
+        public static List<CustomColour> customColour = new List<CustomColour>();
 
         public static IEnumerator LaunchHoldablePadMain()
         {
@@ -49,6 +51,8 @@ namespace HoldablePad
             {
                 fileNames[i] = Path.GetFileName(files[i]);
             }
+
+            customColour.Clear();
 
             GameObject[] objects = new GameObject[files.Length];
             for (int i = 0; i < files.Length; i++)
@@ -116,7 +120,8 @@ namespace HoldablePad
                         {
                             if (handheldInfo[4] == "True")
                             {
-                                objects[i].AddComponent<CustomColour>();
+                                CustomColour holdableCustomColourTemp = objects[i].AddComponent<CustomColour>();
+                                customColour.Add(holdableCustomColourTemp);
                             }
                         }
 
@@ -137,9 +142,9 @@ namespace HoldablePad
         static Transform GetPalm(bool isLeftHand)
         {
             if (isLeftHand)
-                return GameObject.Find("OfflineVRRig/Actual Gorilla/rig/body/shoulder.L/upper_arm.L/forearm.L/hand.L/palm.01.L/").transform;
+                return GorillaTagger.Instance.offlineVRRig.leftHandTransform.parent.Find("palm.01.L");
             else
-                return GameObject.Find("OfflineVRRig/Actual Gorilla/rig/body/shoulder.R/upper_arm.R/forearm.R/hand.R/palm.01.R/").transform;
+                return GorillaTagger.Instance.offlineVRRig.rightHandTransform.parent.Find("palm.01.R");
         }
     }
 

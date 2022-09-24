@@ -6,7 +6,7 @@ namespace HoldablePad
 {
     public class LoadMainMenuButton : HoldableButton
     {
-        readonly float[] colours = { 0f, 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1f };
+        readonly float[] colours = {0, 0, .2f, .2f, .4f, .4f, .6f, .6f, .8f, .8f, 1};
         public int meaning;
         Image image;
 
@@ -20,7 +20,7 @@ namespace HoldablePad
         {
             base.ButtonActivation();
             StartCoroutine(ButtonAnimation());
-            HoldablePage.LoadFor1(meaning);
+            HoldablePage.Instance.ButtonActivationBasedOnIndex(meaning);
         }
 
         IEnumerator ButtonAnimation()

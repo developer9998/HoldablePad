@@ -94,7 +94,6 @@ namespace HoldablePad
             UpdatePad();
         }
 
-        [CodeAnalysis.SuppressMessage("Style", "IDE0059:Unnecessary assignment of a value", Justification = "<Pending>")]
         static void UpdatePad()
         {
             int pageObjectIndex = 1;
@@ -174,6 +173,7 @@ namespace HoldablePad
                             {
                                 ParticleSystem.EmissionModule em = system.emission;
                                 containsParticles = true;
+                                em.enabled = false;
                             }
                         }
 
@@ -259,19 +259,9 @@ namespace HoldablePad
 
                         for (int garilla = 0; garilla < hand_info.Length; garilla++) // for holdables without custom colour support
                         {
-                            if (garilla == 4)
+                            if (garilla == 4 && hand_info[4] != null && hand_info[4] == "True")
                             {
-                                if (hand_info[4] != null)
-                                {
-                                    if (hand_info[4] == "True")
-                                    {
-                                        pageObject.transform.GetChild(pageObjectIndex).Find("Canvas/COLOURSET").GetComponent<Image>().enabled = true;
-                                        pageObject.transform.GetChild(pageObjectIndex).Find("Canvas/COLOURSET").Find("GameObject").GetComponent<BoxCollider>().enabled = true;
-                                        pageObject.transform.GetChild(pageObjectIndex).Find("Canvas/COLOURSET").Find("Text").GetComponent<Text>().enabled = true;
-                                        containsCustomColours = true;
-                                    }
-                                }
-
+                                containsCustomColours = true;
                             }
                         }
                     }
