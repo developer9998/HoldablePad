@@ -267,9 +267,9 @@ namespace HoldablePad.Scripts
 
                 if (customColour)
                 {
-                    var holdableRenderers = holdable.HoldableObject.GetComponentsInChildren<MeshRenderer>().ToList();
+                    var holdableRenderers = holdable.InstantiatedObject.GetComponentsInChildren<MeshRenderer>().ToList();
                     var holdableMaterials = new List<Material>();
-                    holdableRenderers.ForEach(a => a.sharedMaterials.ToList().ForEach(b => holdableMaterials.Add(b)));
+                    holdableRenderers.ForEach(a => a.materials.ToList().ForEach(b => holdableMaterials.Add(b)));
                     holdableMaterials = holdableMaterials.Where(a => a.HasProperty("_Color") || a.HasProperty("_Glow")).ToList();
                     holdableMaterials.ForEach(a => CC_Materials.Add(a));
                 }
