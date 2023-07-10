@@ -1,5 +1,6 @@
 <div align="center">
- <h1>HoldablePad</h1>
+ <img src="https://github.com/developer9998/HoldablePad/blob/main/Marketing/DevHoldablePadBanner.png?raw=true" width=70% height=60%</img><br>
+ <a href="https://github.com/developer9998/HoldablePad/blob/main/LICENSE/">   
  <a href="https://github.com/developer9998/HoldablePad/blob/main/LICENSE/">   
  <img src="https://img.shields.io/github/license/developer9998/HoldablePad?label=License&style=flat-square"</img></a>
  <a href="https://github.com/developer9998/HoldablePad/releases/latest">
