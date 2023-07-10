@@ -1,5 +1,6 @@
 ﻿using HoldablePad.Scripts.Holdables;
 using HoldablePad.Scripts.Utils;
+using System.Globalization;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
@@ -33,10 +34,9 @@ namespace HoldablePad.Scripts.Networking
             string handheldData = ReferenceGun.ProjectileObject.GetComponent<Text>().text;
             string[] handheldInfo = handheldData.Split('$');
 
-            // I'm aware there's tools and methods that are way faster than float.Parse & bool.Parse but similar to what I previously mentioned about splitting the text to-
-            // find the data that relates to the gun it still works fine and I'm willing to work with that
-            ReferenceGun.ProjectSpeed = float.Parse(handheldInfo[0]);
-            ReferenceGun.ProjectCooldown = float.Parse(handheldInfo[1]);
+            CultureInfo englishUnitedStates = new CultureInfo("en-US");
+            ReferenceGun.ProjectSpeed = float.Parse(handheldInfo[0], englishUnitedStates);
+            ReferenceGun.ProjectCooldown = float.Parse(handheldInfo[1], englishUnitedStates);
             ReferenceGun.LoopAudio = bool.Parse(handheldInfo[2]);
 
             ReferenceGun.ProjectileSource.loop = ReferenceGun.LoopAudio;
@@ -45,8 +45,8 @@ namespace HoldablePad.Scripts.Networking
             if (handheldInfo.ElementAtOrDefault(3) != null && bool.Parse(handheldInfo[3]))
             {
                 ReferenceGun.VibrationModule = true;
-                ReferenceGun.VibrationAmp = float.Parse(handheldInfo[4]);
-                ReferenceGun.VibrationDur = float.Parse(handheldInfo[5]);
+                ReferenceGun.VibrationAmp = float.Parse(handheldInfo[4], englishUnitedStates);
+                ReferenceGun.VibrationDur = float.Parse(handheldInfo[5], englishUnitedStates);
             }
 
             IsLeft = bool.Parse(ReferenceHoldable.GetHoldableProp(Holdable.HoldablePropType.IsLeftHand).ToString());
