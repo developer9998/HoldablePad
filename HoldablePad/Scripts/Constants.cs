@@ -5,7 +5,7 @@
         public const string 
             GUID = "dev.HoldablePad",
             Name = "HoldablePad",
-            Version = "1.4.0";
+            Version = "1.4.0.4";
 
         public const float PageLerp = 32;
         public const int PageDisplay = 100;
