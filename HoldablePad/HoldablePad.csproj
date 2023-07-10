@@ -86,18 +86,6 @@
     <Reference Include="PlayFab">
       <HintPath>$(GameAssemblyPath)\PlayFab.dll</HintPath>
     </Reference>
-    <Reference Include="Sirenix.OdinInspector.Attributes">
-      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Gorilla Tag\Gorilla Tag_Data\Managed\Sirenix.OdinInspector.Attributes.dll</HintPath>
-    </Reference>
-    <Reference Include="Sirenix.Serialization">
-      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Gorilla Tag\Gorilla Tag_Data\Managed\Sirenix.Serialization.dll</HintPath>
-    </Reference>
-    <Reference Include="Sirenix.Serialization.Config">
-      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Gorilla Tag\Gorilla Tag_Data\Managed\Sirenix.Serialization.Config.dll</HintPath>
-    </Reference>
-    <Reference Include="Sirenix.Utilities">
-      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Gorilla Tag\Gorilla Tag_Data\Managed\Sirenix.Utilities.dll</HintPath>
-    </Reference>
     <Reference Include="System.EnterpriseServices">
       <HintPath>$(GameAssemblyPath)\System.EnterpriseServices.dll</HintPath>
     </Reference>
