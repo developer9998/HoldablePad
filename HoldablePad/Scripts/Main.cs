@@ -146,7 +146,10 @@ namespace HoldablePad.Scripts
             foreach (FileInfo holdableFile in holdableFiles)
             {
                 var holdableBundle = await AssetUtils.LoadFromFile(Path.Combine(holdablePath, holdableFile.Name));
+                if (holdableBundle == null) continue;
+
                 var holdableAsset = await AssetUtils.LoadAsset<GameObject>(holdableBundle, "holdABLE");
+                holdableBundle.Unload(false);
 
                 holdableAsset.name = holdableFile.Name;
                 var holdableString = holdableAsset.GetComponent<Text>().text.Split('$');
@@ -165,8 +168,8 @@ namespace HoldablePad.Scripts
                 var holdableColliders = holdableAsset.GetComponentsInChildren<Collider>();
                 if (holdableColliders.Length > 0) holdableColliders.ToList().ForEach(c => c.enabled = false);
 
-                holdableBundle.Unload(false);
                 Logger.Log(string.Concat("Loaded holdable ", localHoldable.GetHoldableProp(0), " by ", localHoldable.GetHoldableProp(1)));
+                await Task.Yield();
             }
 
             // Go through the holdables we just initalized 
@@ -178,7 +181,7 @@ namespace HoldablePad.Scripts
                 var localPlayer = GorillaTagger.Instance.offlineVRRig;
 
                 var clonedHoldable = Instantiate(holdable.HoldableObject);
-                foreach (var component in clonedHoldable.GetComponentsInChildren<AudioSource>().Where(a => !Mathf.Approximately(1f, a.spatialBlend)).ToArray())
+                foreach (var component in clonedHoldable.GetComponentsInChildren<AudioSource>().Where(a => a.spatialBlend != 1).ToArray())
                 {
                     float maxVolume = 0.06f;
                     if (component.name == "UsedBulletSoundEffect") maxVolume = 0.1f;
@@ -259,19 +262,25 @@ namespace HoldablePad.Scripts
                 newPage.SetSlots(
                     baseObject.GetComponentsInChildren<AudioSource>().Where(a => a.name != "UsedBulletSoundEffect").ToArray().Length > 0,
                     customColour,
-                    baseObject.GetComponentInChildren<Light>() != null,
+                    baseObject.GetComponentsInChildren<Light>().Where(a => a.type != LightType.Directional).ToArray().Length > 0,
                     baseObject.GetComponentInChildren<ParticleSystem>() != null,
                     isGun,
                     gunHaptic
                 );
 
+                if (baseObject.GetComponentsInChildren<Light>().Where(a => a.type == LightType.Directional).ToList() is var lightList && lightList.Count > 0)
+                    lightList.ForEach(a => a.enabled = false);
+
                 if (customColour)
                 {
                     var holdableRenderers = holdable.InstantiatedObject.GetComponentsInChildren<MeshRenderer>().ToList();
-                    var holdableMaterials = new List<Material>();
-                    holdableRenderers.ForEach(a => a.materials.ToList().ForEach(b => holdableMaterials.Add(b)));
-                    holdableMaterials = holdableMaterials.Where(a => a.HasProperty("_Color") || a.HasProperty("_Glow")).ToList();
-                    holdableMaterials.ForEach(a => CC_Materials.Add(a));
+                    if (holdableRenderers.Count > 0 && holdableRenderers.Where(c => c.materials.Length > 0).ToList().Count > 0)
+                    {
+                        var holdableMaterials = new List<Material>();
+                        holdableRenderers.ForEach(a => a.materials.ToList().ForEach(b => holdableMaterials.Add(b)));
+                        holdableMaterials = holdableMaterials.Where(a => a.HasProperty("_Color") || a.HasProperty("_Glow")).ToList();
+                        holdableMaterials.ForEach(a => CC_Materials.Add(a));
+                    }
                 }
 
                 if (newPage.SlotsActive > 0)
@@ -463,7 +472,9 @@ namespace HoldablePad.Scripts
 
             Initalized = true;
             MainResourceBundle.Unload(false);
+
             Logger.Log("Finished initializing the mod! The pad can now be opened.");
+            HoldablePadHandheld.transform.Find("UI/BackPage/Flag").gameObject.SetActive(false);
         }
 
         /// <summary>
