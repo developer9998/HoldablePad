@@ -9,8 +9,32 @@
  <img src="https://img.shields.io/discord/989239017511989258?label=Discord&style=flat-square"</img></a>
 </div>
 
-### What is HoldablePad?
+## What is HoldablePad?
 HoldablePad is a PC mod for the Virtual Reality game Gorilla Tag which allows players to use custom holdable cosmetics.
+
+## Where do I download the mod?
+You can download the mod at it's latest release, which can be found [here.](https://github.com/developer9998/HoldablePad/releases/latest)
+
+## How do I install the mod?
+To install the mod, locate your BepInEx directory and put the mod into the "plugins" folder.<br>
+
+Open MonkeModManager, go to the "Utilites" tab, and click on "BepInEx Folder"
+
+<img src="https://github.com/developer9998/HoldablePad/blob/main/Guides/MonkeMod1.png?raw=true" width=45% height=50%>
+
+After that, you should be able to locate the "plugins" folder in the opened directory
+
+<img src="https://github.com/developer9998/HoldablePad/blob/main/Guides/BepIn1.png?raw=true" width=45% height=50%>
+
+## How do I install custom holdables?
+When the game is opened with the mod, a new "Holdables" folder should be created in the same directory as the mod itself.
+
+<img src="https://github.com/developer9998/HoldablePad/blob/main/Guides/Directory1.png?raw=true" width=45% height=50%>
+
+When you have your custom holdables downloaded, you can easily just paste them into that "Holdables" folder.
+
+<img src="https://github.com/developer9998/HoldablePad/blob/main/Guides/Directory2.png?raw=true" width=45% height=50%><br>
+###### You can find custom holdables in my Discord server, which can be found [here.](https://discord.gg/dev9998)
 
 ### How do I create my own holdables?
 You can create your own holdables using the Unity Project:<br>
