@@ -9,15 +9,29 @@ namespace HoldablePad.Scripts.Networking
 {
     public class Client : MonoBehaviour
     {
-        public static List<Client> netClients = new List<Client>();
-        public static Dictionary<Client, Player> keyValuePairs = new Dictionary<Client, Player>();
-
         public bool ClientLoaded;
 
-        public GameObject HP_Current;
-        public Holdable HP_HCurrent;
-        public GameObject HP_CurrentLeft;
-        public Holdable HP_HCurrentLeft;
+        /// <summary>
+        /// If/was this client is using HoldablePad
+        /// </summary>
+        public bool
+            IsHoldablePadUser,
+            wasHoldablePadUser;
+
+        /*
+        /// <summary>
+        /// The icons for this user that is displayed on the scoreboard
+        /// </summary>
+        public List<GameObject> HoldablePadIcons;
+        */
+
+        public GameObject
+            HP_Current,
+            HP_CurrentLeft;
+
+        public Holdable
+            HP_HCurrent,
+            HP_HCurrentLeft;
 
         public VRRig currentRig;
         public Player currentPlayer;
@@ -44,14 +58,14 @@ namespace HoldablePad.Scripts.Networking
             }
             ClientLoaded = true;
 
-            netClients.Add(this);
-            keyValuePairs.Add(this, currentPlayer);
-
             if (Main.Instance == null || (Main.Instance != null && !Main.Instance.Initalized))
                 await AwaitInitalize();
 
             if (currentPlayer != null && !currentPlayer.IsLocal)
+            {
                 HoldableNetwork.Instance.OnPlayerPropertiesUpdate(currentPlayer, currentPlayer.CustomProperties);
+                currentColour = new Material(currentRig.materialsToChangeTo[0]).color;
+            }
         }
 
         public void OnDisable()
@@ -60,13 +74,10 @@ namespace HoldablePad.Scripts.Networking
             {
                 // Bye bye!! 3:57 AM 7/2/2023
                 Unequip(true, true);
-                ClientLoaded = false;
 
-                if (netClients.Contains(this))
-                {
-                    netClients.Remove(this);
-                    keyValuePairs.Remove(this);
-                }
+                IsHoldablePadUser = false;
+                wasHoldablePadUser = false;
+                ClientLoaded = false;
             }
         }
 
@@ -89,6 +100,7 @@ namespace HoldablePad.Scripts.Networking
         // vouchSourceBool is for if it's vouching to be a holdable for the left or right hand, depending on what CustomProperties key it originates from
         public void Equip(Holdable holdable, bool vouchSourceBool)
         {
+            IsHoldablePadUser = true;
             bool isLeftHand = bool.Parse(holdable.GetHoldableProp(Holdable.HoldablePropType.IsLeftHand).ToString());
 
             // Do not clone the holdable if the player is already using it (Left)
@@ -135,6 +147,27 @@ namespace HoldablePad.Scripts.Networking
                 gunHoldable.ReferenceRig = currentRig;
                 gunHoldable.ReferenceHoldable = holdable;
                 gunHoldable.Initalize();
+            }
+
+            // Networked custom colours (11:36 AM, 7/12/2023)
+            object colourProp = holdable.GetHoldableProp(Holdable.HoldablePropType.UtilizeCustomColour);
+            bool customColour = colourProp != null && bool.Parse(colourProp.ToString());
+
+            List<Material> CC_Materials = new List<Material>();
+            if (customColour)
+            {
+                var holdableRenderers = clonedHoldable.GetComponentsInChildren<MeshRenderer>().ToList();
+                if (holdableRenderers.Count > 0 && holdableRenderers.Where(c => c.materials.Length > 0).ToList().Count > 0)
+                {
+                    var holdableMaterials = new List<Material>();
+                    holdableRenderers.ForEach(a => a.materials.ToList().ForEach(b => holdableMaterials.Add(b)));
+                    holdableMaterials = holdableMaterials.Where(a => a.HasProperty("_Color") || a.HasProperty("_Glow")).ToList();
+                    holdableMaterials.ForEach(a => CC_Materials.Add(a));
+                }
+
+                var cc = clonedHoldable.AddComponent<CustomColour>();
+                cc.ColourCheckMaterial = CC_Materials;
+                cc.ReferenceRig = this;
             }
 
             if (vouchSourceBool)

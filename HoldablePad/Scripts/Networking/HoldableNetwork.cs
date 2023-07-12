@@ -1,5 +1,6 @@
 ﻿using ExitGames.Client.Photon;
 using HoldablePad.Scripts.Holdables;
+using HoldablePad.Scripts.Utils;
 using Photon.Pun;
 using Photon.Realtime;
 using System;
@@ -25,6 +26,7 @@ namespace HoldablePad.Scripts.Networking
             main.ApplyProps();
 
             await Task.Delay(400);
+            int currentClientCount = Clients.Count;
             foreach (var player in PhotonNetwork.PlayerList)
             {
                 if (player.IsLocal) continue;
@@ -35,11 +37,13 @@ namespace HoldablePad.Scripts.Networking
                     tempClient.currentRig = tempRig;
                     tempClient.enabled = true;
                     Clients.Add(player, tempClient);
-
-                    await Task.Delay(50);
                     CheckHoldables(tempClient, player.CustomProperties);
                 }
             }
+
+            await Task.Delay(250);
+            if (currentClientCount != Clients.Count && ScoreboardUtils.GetAllScoreboards() is var scoreboards && scoreboards.Count > 0)
+                scoreboards.ForEach(a => ScoreboardUtils.UpdateScoreboardHP(a));
         }
 
         public async override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
@@ -81,6 +85,7 @@ namespace HoldablePad.Scripts.Networking
             // Left holdable, still no real way to check if it is a left hand holdable without doing even more checks
             if (changedProps.TryGetValue("HP_Left", out object hpKeyLeft))
             {
+                currentClient.IsHoldablePadUser = true;
                 if (hpKeyLeft is string hpKeyLeftString)
                 {
                     if (main.InitalizedHoldablesDict.TryGetValue(hpKeyLeftString, out Holdable value))
@@ -95,6 +100,7 @@ namespace HoldablePad.Scripts.Networking
             // Right holdable, still no real way to check if it is a right hand holdable without doing even more checks
             if (changedProps.TryGetValue("HP_Right", out object hpKeyRight))
             {
+                currentClient.IsHoldablePadUser = true;
                 if (hpKeyRight is string hpKeyLeftString)
                 {
                     if (main.InitalizedHoldablesDict.TryGetValue(hpKeyLeftString, out Holdable value))
@@ -113,6 +119,7 @@ namespace HoldablePad.Scripts.Networking
 
             if (!GorillaTagger.Instance.offlineVRRig.isQuitting)
             {
+                ScoreboardUtils.cachedLines.Clear();
                 Clients.Values.ToList().ForEach(x => Destroy(x)); // Remove all the clients
                 Clients.Clear();
             }
@@ -124,6 +131,10 @@ namespace HoldablePad.Scripts.Networking
 
             if (Clients.ContainsKey(otherPlayer))
             {
+                // https://stackoverflow.com/a/2444064/21090957
+                var myKey = ScoreboardUtils.cachedLines.FirstOrDefault(x => x.Value == otherPlayer).Key;
+                ScoreboardUtils.cachedLines.Remove(myKey);
+
                 Destroy(Clients[otherPlayer]);
                 Clients.Remove(otherPlayer);
             }

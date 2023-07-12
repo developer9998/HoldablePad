@@ -117,6 +117,11 @@ namespace HoldablePad.Scripts
         /// </summary>
         public static InputDevice HeadDevice, LeftHandDevice, RightHandDevice;
 
+        /// <summary>
+        /// The icon used on the scoreboard for HP users
+        /// </summary>
+        public Sprite ScoreboardIcon;
+
         public async void Start()
         {
             Instance = this;
@@ -168,6 +173,10 @@ namespace HoldablePad.Scripts
                 var holdableColliders = holdableAsset.GetComponentsInChildren<Collider>();
                 if (holdableColliders.Length > 0) holdableColliders.ToList().ForEach(c => c.enabled = false);
 
+                // Remove directional lights
+                if (holdableAsset.GetComponentsInChildren<Light>().Where(a => a.type == LightType.Directional).ToList() is var lightList && lightList.Count > 0)
+                    lightList.ForEach(a => a.enabled = false);
+
                 Logger.Log(string.Concat("Loaded holdable ", localHoldable.GetHoldableProp(0), " by ", localHoldable.GetHoldableProp(1)));
                 await Task.Yield();
             }
@@ -210,6 +219,7 @@ namespace HoldablePad.Scripts
             Equip = await AssetUtils.LoadAsset<AudioClip>(MainResourceBundle, "HP_Equip");
 
             HoldablePadHandheld = Instantiate(await AssetUtils.LoadAsset<GameObject>(MainResourceBundle, "HoldablePad_Parent"));
+            ScoreboardIcon = await AssetUtils.LoadAsset<Sprite>(MainResourceBundle, "HPLowIcon");
             PadSource = HoldablePadHandheld.GetComponent<AudioSource>();
             SetPadTheme(Config.CurrentTheme.Value);
 
@@ -267,9 +277,6 @@ namespace HoldablePad.Scripts
                     isGun,
                     gunHaptic
                 );
-
-                if (baseObject.GetComponentsInChildren<Light>().Where(a => a.type == LightType.Directional).ToList() is var lightList && lightList.Count > 0)
-                    lightList.ForEach(a => a.enabled = false);
 
                 if (customColour)
                 {
@@ -347,7 +354,7 @@ namespace HoldablePad.Scripts
                 newPage.SetSlots(
                     baseObject.GetComponentsInChildren<AudioSource>().Where(a => a.name != "UsedBulletSoundEffect").ToArray().Length > 0,
                     customColour,
-                    baseObject.GetComponentInChildren<Light>() != null,
+                    baseObject.GetComponentsInChildren<Light>().Where(a => a.type != LightType.Directional).ToArray().Length > 0,
                     baseObject.GetComponentInChildren<ParticleSystem>() != null,
                     isGun,
                     gunHaptic
@@ -1021,11 +1028,7 @@ namespace HoldablePad.Scripts
             else
                 HoldableList[1].FilteredPages.Remove(currentPage);
 
-            if (HoldableList[1].FilteredPages.Count == 0)
-            {
-                Config.FavouriteHoldables.Value = "None";
-                Config.ConfigFile.Save();
-            }
+            if (HoldableList[1].FilteredPages.Count == 0) Config.FavouriteHoldables.Value = "None";
             else
             {
                 // If you're reading this and you know of a better method for doing this sorta thing, can you show me please, 9:22 AM 7/6/2023
@@ -1038,13 +1041,13 @@ namespace HoldablePad.Scripts
                     usedHoldables.ForEach(a => favouritedHoldables.Add(InitalizedHoldables[a].BasePath));
 
                     Config.FavouriteHoldables.Value = string.Join(";", favouritedHoldables);
-                    Config.ConfigFile.Save();
                 }
                 catch (Exception ex)
                 {
                     Logger.LogError("Error while attempting to save favourited holdables: " + ex.ToString());
                 }
             }
+            Config.ConfigFile.Save();
         }
 
         #endregion

@@ -1,10 +1,9 @@
 ﻿using GorillaExtensions;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace HoldablePad.Scripts.Networking
 {
-    public class NetworedProjectile : MonoBehaviour
+    public class NetworkedProjectile : MonoBehaviour
     {
         public Vector3 targetVelocity;
         public NetworkedGun ReferenceHoldable;

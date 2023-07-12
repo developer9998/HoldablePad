@@ -1,9 +1,9 @@
 ﻿using HoldablePad.Scripts.Utils;
+using System.Globalization;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.XR;
-using System.Globalization;
 
 namespace HoldablePad.Scripts.Holdables
 {

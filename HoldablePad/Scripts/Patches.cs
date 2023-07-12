@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using HoldablePad.Scripts.Networking;
+using HoldablePad.Scripts.Utils;
 using UnityEngine;
 
 namespace HoldablePad.Scripts
@@ -11,7 +12,10 @@ namespace HoldablePad.Scripts
 
         [HarmonyPatch(typeof(GorillaTagger), "Start"), HarmonyPostfix]
         public static void InitPatch(GorillaTagger __instance)
-            => __instance.gameObject.AddComponent<Main>();
+        {
+            var holdablePadParent = new GameObject("HoldablePadMain", typeof(Main));
+            holdablePadParent.transform.parent = __instance.gameObject.transform;
+        }
 
         [HarmonyPatch(typeof(GorillaTagger), "UpdateColor"), HarmonyPrefix]
         public static void ColourPatch(float red, float green, float blue)
@@ -24,5 +28,9 @@ namespace HoldablePad.Scripts
                 return;
             client.currentColour = color;
         }
+
+        [HarmonyPatch(typeof(GorillaScoreBoard), "RedrawPlayerLines"), HarmonyPrefix, HarmonyWrapSafe]
+        public static void RedrawLinesPatch(GorillaScoreBoard __instance)
+            => ScoreboardUtils.UpdateScoreboardHP(__instance);
     }
 }

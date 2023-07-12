@@ -10,8 +10,8 @@ namespace HoldablePad.Scripts
         public static bool IsHoldableBtnCooldown
             => (HBBtnCooldownTime + (Constants.ButtonDebounce / 1.5f)) > Time.unscaledTime;
 
-        public static float 
-            GlobalBtnCooldownTime, 
+        public static float
+            GlobalBtnCooldownTime,
             HBBtnCooldownTime;
     }
 }

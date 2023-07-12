@@ -9,7 +9,7 @@ namespace HoldablePad.Scripts
 {
     public class Button : MonoBehaviour
     {
-        public bool 
+        public bool
             Pressed,
             PressedCooldown;
         public ButtonPage CurrentPage;

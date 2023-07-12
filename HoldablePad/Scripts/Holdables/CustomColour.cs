@@ -13,10 +13,7 @@ namespace HoldablePad.Scripts.Holdables
         public void Start()
         {
             if (ReferenceRig == null)
-            {
                 currentColour = Patches.PlayerColour;
-                return;
-            }
         }
 
         public void FixedUpdate()
@@ -27,12 +24,14 @@ namespace HoldablePad.Scripts.Holdables
             Color lerpOrigin = currentColour;
             currentColour = Color.Lerp(lerpOrigin, Patches.PlayerColour, Constants.CustomColourLerp * Time.unscaledDeltaTime);
 
+            // Custom colour for other clients (11:30 AM, 7/12/2023)
             if (ReferenceRig != null)
             {
                 currentColour = Color.Lerp(lerpOrigin, ReferenceRig.currentColour, Constants.CustomColourLerp * Time.unscaledDeltaTime);
                 ColourCheckMaterial.ForEach(a => a.color = currentColour);
                 return;
             }
+
             ColourCheckMaterial.ForEach(a => a.color = currentColour);
         }
 

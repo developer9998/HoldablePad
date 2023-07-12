@@ -94,7 +94,7 @@ namespace HoldablePad.Scripts.Networking
             foreach (var component in TempBulletTransform.GetComponentsInChildren<TrailRenderer>()) component.enabled = true;
             foreach (var component in TempBulletTransform.GetComponentsInChildren<Light>()) component.enabled = true;
 
-            var networkedProjectile = ProjectedBullet.AddComponent<NetworedProjectile>();
+            var networkedProjectile = ProjectedBullet.AddComponent<NetworkedProjectile>();
             networkedProjectile.ReferenceHoldable = this;
             networkedProjectile.targetVelocity = (PlayerUtils.GetPalm(ReferenceRig, IsLeft).up - (Vector3.up * 0.18f)) * ReferenceGun.ProjectSpeed * Constants.ProjectileMultiplier;
         }

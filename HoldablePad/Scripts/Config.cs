@@ -34,7 +34,7 @@ namespace HoldablePad.Scripts
 
         public static void Initalize()
         {
-            ConfigFile = new ConfigFile(Path.Combine(Paths.ConfigPath, "DevHoldablePad.cfg"), true);
+            ConfigFile = new ConfigFile(Path.Combine(Paths.ConfigPath, "DevHoldablePad.cfg"), false);
 
             CurrentHand = ConfigFile.Bind("Configuration", "Pad Hand", HandPosition.LeftHand, "This will determine which hand the pad will be put in.");
             CurrentTheme = ConfigFile.Bind("Configuration", "Pad Theme", PadTheme.Default, "This will change the current theme of the pad.");
@@ -43,6 +43,8 @@ namespace HoldablePad.Scripts
             CurrentHoldableLeft = ConfigFile.Bind("Internal Data", "Current Holdable (Left)", "None", "The full name of the currently equipped holdable for our left hand.");
             CurrentHoldableRight = ConfigFile.Bind("Internal Data", "Current Holdable (Right)", "None", "The full name of the currently equipped holdable for our right hand.");
             FavouriteHoldables = ConfigFile.Bind("Internal Data", "Favourited Holdables", "None", "The list of currently favourited holdables.");
+
+            ConfigFile.Save();
         }
 
         public static void OverwriteHand(HandPosition handPosition)

@@ -1,5 +1,4 @@
 ﻿using GorillaExtensions;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace HoldablePad.Scripts.Holdables
