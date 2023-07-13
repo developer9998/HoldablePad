@@ -19,17 +19,17 @@
             File_Internal = ".holdable";
 
         public const float
-            ProjectileMultiplier = 2.25f,
-            CustomColourLerp = 5f;
+            ProjectileMultiplier = 2f,
+            CustomColourLerp = 4f;
 
         public const float
-            ButtonDebounce = 0.18f,
-            ConfigBtnDebounce = 0.08f,
+            ButtonDebounce = 0.15f,
+            ConfigBtnDebounce = 0.1f,
             NetworkDebounce = 2f;
 
         public const float
             ButtonVolume = 0.4f,
-            ButtonAmplitude = 0.1f,
-            ButtonDuration = 0.1f;
+            ButtonAmplitude = 0.12f,
+            ButtonDuration = 0.08f;
     }
 }
