@@ -148,6 +148,7 @@ namespace HoldablePad.Scripts
                 await WriteHoldables(false);
 
             // Load the holdable objects
+            float currentTime = Time.unscaledTime;
             foreach (FileInfo holdableFile in holdableFiles)
             {
                 var holdableBundle = await AssetUtils.LoadFromFile(Path.Combine(holdablePath, holdableFile.Name));
@@ -180,37 +181,57 @@ namespace HoldablePad.Scripts
                 Logger.Log(string.Concat("Loaded holdable ", localHoldable.GetHoldableProp(0), " by ", localHoldable.GetHoldableProp(1)));
                 await Task.Yield();
             }
+            int currentHoldableLength = InitalizedHoldables.Count;
+            List<Holdable> HoldablesToRemove = new List<Holdable>();
 
             // Go through the holdables we just initalized 
             foreach (Holdable holdable in InitalizedHoldables)
             {
-                bool isLeftHand = bool.Parse(holdable.GetHoldableProp(Holdable.HoldablePropType.IsLeftHand).ToString());
-                string holdableName = holdable.BasePath;
-
-                var localPlayer = GorillaTagger.Instance.offlineVRRig;
-
-                var clonedHoldable = Instantiate(holdable.HoldableObject);
-                foreach (var component in clonedHoldable.GetComponentsInChildren<AudioSource>().Where(a => a.spatialBlend != 1).ToArray())
+                try
                 {
-                    float maxVolume = 0.06f;
-                    if (component.name == "UsedBulletSoundEffect") maxVolume = 0.1f;
+                    bool isLeftHand = bool.Parse(holdable.GetHoldableProp(Holdable.HoldablePropType.IsLeftHand).ToString());
+                    string holdableName = holdable.BasePath;
 
-                    component.spatialBlend = 1f;
-                    component.volume = Mathf.Min(component.volume, maxVolume);
+                    var localPlayer = GorillaTagger.Instance.offlineVRRig;
+
+                    var clonedHoldable = Instantiate(holdable.HoldableObject);
+                    foreach (var component in clonedHoldable.GetComponentsInChildren<AudioSource>().Where(a => a.spatialBlend != 1).ToArray())
+                    {
+                        float maxVolume = 0.06f;
+                        if (component.name == "UsedBulletSoundEffect") maxVolume = 0.1f;
+
+                        component.spatialBlend = 1f;
+                        component.volume = Mathf.Min(component.volume, maxVolume);
+                    }
+
+                    var holdableParent = PlayerUtils.GetPalm(isLeftHand);
+                    clonedHoldable.transform.SetParent(holdableParent, false);
+                    clonedHoldable.SetActive(false);
+
+                    // Gun behaviors, 1:42 AM 6/2/2023
+                    if (clonedHoldable.transform.Find("UsedBulletGameObject") != null)
+                    {
+                        HoldableGun gunHoldable = clonedHoldable.AddComponent<HoldableGun>();
+                        gunHoldable.ReferenceHoldable = holdable;
+                        gunHoldable.Initalize();
+                    }
+                    holdable.InstantiatedObject = clonedHoldable;
                 }
-
-                var holdableParent = PlayerUtils.GetPalm(isLeftHand);
-                clonedHoldable.transform.SetParent(holdableParent, false);
-                clonedHoldable.SetActive(false);
-
-                // Gun behaviors, 1:42 AM 6/2/2023
-                if (clonedHoldable.transform.Find("UsedBulletGameObject") != null)
+                catch(Exception e)
                 {
-                    HoldableGun gunHoldable = clonedHoldable.AddComponent<HoldableGun>();
-                    gunHoldable.ReferenceHoldable = holdable;
-                    gunHoldable.Initalize();
+                    Logger.LogError("Exception (" + e.GetType().Name + ") while trying to create handheld object for " + holdable.GetHoldableProp(Holdable.HoldablePropType.Name));
+                    HoldablesToRemove.Add(holdable);
                 }
-                holdable.InstantiatedObject = clonedHoldable;
+            }
+
+            if (HoldablesToRemove.Count > 0)
+            {
+                HoldablesToRemove.ForEach(a =>
+                {
+                    InitalizedHoldables.Remove(a);
+                    InitalizedHoldablesDict.Remove(a.BasePath);
+                });
+                HoldablesToRemove.Clear();
             }
 
             MainResourceBundle = await AssetUtils.LoadFromStream(Constants.Asset_Resource);
@@ -225,6 +246,7 @@ namespace HoldablePad.Scripts
 
             var holdableTransform = HoldablePadHandheld.transform;
             List<Material> CC_Materials = new List<Material>();
+
             foreach (Holdable holdable in InitalizedHoldables)
             {
                 var newPageObject = Instantiate(holdableTransform.Find(HoldableList[0].BaseObjectPath).gameObject, holdableTransform.Find(HoldableList[0].BaseObjectPath).parent);
@@ -239,75 +261,104 @@ namespace HoldablePad.Scripts
                     Slots = newPageObject.transform.Find("Items").GetComponent<RectTransform>(),
                     PreviewBase = newPageObject.transform.Find("HandheldLocation").GetComponent<RectTransform>()
                 };
-                HoldableList[0].MenuPages.Add(newPage);
 
-                BoxCollider favouriteButton = newPageObject.transform.GetComponentInChildren<BoxCollider>(true);
-                favouriteButton.gameObject.AddComponent<Button>().CurrentPage = Button.ButtonPage.Favourite;
-
-                var holdablePreviewObject = Instantiate(holdable.HoldableObject);
-                holdable.PreviewObject = holdablePreviewObject;
-
-                bool isLeftHand = bool.Parse(holdable.GetHoldableProp(Holdable.HoldablePropType.IsLeftHand).ToString());
-                Transform handTransform = isLeftHand ? newPage.PreviewBase.Find("LeftExporter") : newPage.PreviewBase.Find("RightExporter");
-                holdablePreviewObject.transform.SetParent(handTransform, false);
-
-                var componentTypes = new List<Type>() { typeof(ParticleSystem), typeof(TrailRenderer), typeof(AudioSource), typeof(Light), typeof(VideoPlayer), typeof(LODGroup), typeof(AudioListener) };
-                var componentsList = holdablePreviewObject.GetComponentsInChildren(typeof(Component)).Where(a => componentTypes.Contains(a.GetType()));
-                foreach (var component in componentsList) Destroy(component);
-
-                newPage.Header.text = holdable.GetHoldableProp(Holdable.HoldablePropType.Name).ToString();
-                newPage.Author.text = string.Concat("Holdable by ", holdable.GetHoldableProp(Holdable.HoldablePropType.Author).ToString());
-                newPage.Description.text = holdable.GetHoldableProp(Holdable.HoldablePropType.Description).ToString();
-
-                bool isLeft = bool.Parse(holdable.GetHoldableProp(Holdable.HoldablePropType.IsLeftHand).ToString());
-                holdableTransform.Find("UI/ButtonTextMiddle").GetComponent<Text>().text = HoldableUtils.IsEquipped(holdable) ? "Unequip" : $"Equip ({(isLeft ? "Left" : "Right")})";
-
-                object colourProp = holdable.GetHoldableProp(Holdable.HoldablePropType.UtilizeCustomColour);
-                bool customColour = colourProp != null && bool.Parse(colourProp.ToString());
-
-                bool isGun = holdable.InstantiatedObject.GetComponentInChildren<HoldableGun>() != null;
-                bool gunHaptic = isGun && holdable.InstantiatedObject.GetComponentInChildren<HoldableGun>().ReferenceGun.VibrationModule;
-
-                var baseObject = holdable.HoldableObject;
-                newPage.SetSlots(
-                    baseObject.GetComponentsInChildren<AudioSource>().Where(a => a.name != "UsedBulletSoundEffect").ToArray().Length > 0,
-                    customColour,
-                    baseObject.GetComponentsInChildren<Light>().Where(a => a.type != LightType.Directional).ToArray().Length > 0,
-                    baseObject.GetComponentInChildren<ParticleSystem>() != null,
-                    isGun,
-                    gunHaptic
-                );
-
-                if (customColour)
+                try
                 {
-                    var holdableRenderers = holdable.InstantiatedObject.GetComponentsInChildren<MeshRenderer>().ToList();
-                    if (holdableRenderers.Count > 0 && holdableRenderers.Where(c => c.materials.Length > 0).ToList().Count > 0)
+                    HoldableList[0].MenuPages.Add(newPage);
+
+                    BoxCollider favouriteButton = newPageObject.transform.GetComponentInChildren<BoxCollider>(true);
+                    favouriteButton.gameObject.AddComponent<Button>().CurrentPage = Button.ButtonPage.Favourite;
+
+                    var holdablePreviewObject = Instantiate(holdable.HoldableObject);
+                    holdable.PreviewObject = holdablePreviewObject;
+
+                    bool isLeftHand = bool.Parse(holdable.GetHoldableProp(Holdable.HoldablePropType.IsLeftHand).ToString());
+                    Transform handTransform = isLeftHand ? newPage.PreviewBase.Find("LeftExporter") : newPage.PreviewBase.Find("RightExporter");
+                    holdablePreviewObject.transform.SetParent(handTransform, false);
+
+                    var componentTypes = new List<Type>() { typeof(ParticleSystem), typeof(TrailRenderer), typeof(AudioSource), typeof(Light), typeof(VideoPlayer), typeof(LODGroup), typeof(AudioListener) };
+                    var componentsList = holdablePreviewObject.GetComponentsInChildren(typeof(Component)).Where(a => componentTypes.Contains(a.GetType()));
+                    foreach (var component in componentsList) Destroy(component);
+
+                    newPage.Header.text = holdable.GetHoldableProp(Holdable.HoldablePropType.Name).ToString();
+                    newPage.Author.text = string.Concat("Holdable by ", holdable.GetHoldableProp(Holdable.HoldablePropType.Author).ToString());
+                    newPage.Description.text = holdable.GetHoldableProp(Holdable.HoldablePropType.Description).ToString();
+
+                    bool isLeft = bool.Parse(holdable.GetHoldableProp(Holdable.HoldablePropType.IsLeftHand).ToString());
+                    holdableTransform.Find("UI/ButtonTextMiddle").GetComponent<Text>().text = HoldableUtils.IsEquipped(holdable) ? "Unequip" : $"Equip ({(isLeft ? "Left" : "Right")})";
+
+                    object colourProp = holdable.GetHoldableProp(Holdable.HoldablePropType.UtilizeCustomColour);
+                    bool customColour = colourProp != null && bool.Parse(colourProp.ToString());
+
+                    bool isGun = holdable.InstantiatedObject.GetComponentInChildren<HoldableGun>() != null;
+                    bool gunHaptic = isGun && holdable.InstantiatedObject.GetComponentInChildren<HoldableGun>().ReferenceGun.VibrationModule;
+
+                    var baseObject = holdable.HoldableObject;
+
+                    var audioSources = baseObject.GetComponentsInChildren<AudioSource>();
+                    audioSources = audioSources.Length > 0 ? audioSources.Where(a => a.name != "UsedBulletSoundEffect").ToArray() : audioSources;
+
+                    var lights = baseObject.GetComponentsInChildren<Light>();
+                    lights = lights.Length > 0 ? lights.Where(a => a.type != LightType.Directional).ToArray() : lights;
+
+                    newPage.SetSlots(
+                        audioSources.Length > 0,
+                        customColour,
+                        lights.Length > 0,
+                        baseObject.GetComponentsInChildren<ParticleSystem>().Length > 0,
+                        isGun,
+                        gunHaptic
+                    );
+
+                    if (customColour)
                     {
-                        var holdableMaterials = new List<Material>();
-                        holdableRenderers.ForEach(a => a.materials.ToList().ForEach(b => holdableMaterials.Add(b)));
-                        holdableMaterials = holdableMaterials.Where(a => a.HasProperty("_Color") || a.HasProperty("_Glow")).ToList();
-                        holdableMaterials.ForEach(a => CC_Materials.Add(a));
+                        var holdableRenderers = holdable.InstantiatedObject.GetComponentsInChildren<MeshRenderer>().ToList();
+                        if (holdableRenderers.Count > 0 && holdableRenderers.Where(c => c.materials.Length > 0).ToList().Count > 0)
+                        {
+                            var holdableMaterials = new List<Material>();
+                            holdableRenderers.ForEach(a => a.materials.ToList().ForEach(b => holdableMaterials.Add(b)));
+                            holdableMaterials = holdableMaterials.Where(a => a.HasProperty("_Color") || a.HasProperty("_Glow")).ToList();
+                            holdableMaterials.ForEach(a => CC_Materials.Add(a));
+                        }
                     }
-                }
 
-                if (newPage.SlotsActive > 0)
-                {
-                    newPage.PreviewBase.localPosition = new Vector3(0f, -18.4f, -0.41f);
-                    newPage.PreviewBase.localScale = Vector3.one * 24.97094f;
-                }
-                else
-                {
-                    newPage.PreviewBase.localPosition = new Vector3(0f, -25.8f, -0.41f);
-                    newPage.PreviewBase.localScale = Vector3.one * 33.27129f;
-                }
+                    if (newPage.SlotsActive > 0)
+                    {
+                        newPage.PreviewBase.localPosition = new Vector3(0f, -18.4f, -0.41f);
+                        newPage.PreviewBase.localScale = Vector3.one * 24.97094f;
+                    }
+                    else
+                    {
+                        newPage.PreviewBase.localPosition = new Vector3(0f, -25.8f, -0.41f);
+                        newPage.PreviewBase.localScale = Vector3.one * 33.27129f;
+                    }
 
-                var currentHand = isLeft ? newPage.PreviewBase.Find("PreviewObject/metarig/hand_L") : newPage.PreviewBase.Find("PreviewObject/metarig/hand_R");
-                var hiddenHand = !isLeft ? newPage.PreviewBase.Find("PreviewObject/metarig/hand_L") : newPage.PreviewBase.Find("PreviewObject/metarig/hand_R");
-                currentHand.transform.localScale = Vector3.one; hiddenHand.transform.localScale = Vector3.zero;
+                    var currentHand = isLeft ? newPage.PreviewBase.Find("PreviewObject/metarig/hand_L") : newPage.PreviewBase.Find("PreviewObject/metarig/hand_R");
+                    var hiddenHand = !isLeft ? newPage.PreviewBase.Find("PreviewObject/metarig/hand_L") : newPage.PreviewBase.Find("PreviewObject/metarig/hand_R");
+                    currentHand.transform.localScale = Vector3.one; hiddenHand.transform.localScale = Vector3.zero;
+                }
+                catch (Exception e)
+                {
+                    Logger.LogError("Exception (" + e.GetType().Name + ") while trying to create preview object for " + holdable.GetHoldableProp(Holdable.HoldablePropType.Name));
+                    Destroy(newPageObject);
+
+                    HoldableList[0].MenuPages.Remove(newPage);
+                    HoldablesToRemove.Add(holdable);
+                }
             }
             // Do this after we've setup our favourites buttons
             SetPadHand(Config.CurrentHand.Value == Config.HandPosition.LeftHand);
             SetFavoruiteButtonSide(Config.CurrentHand.Value == Config.HandPosition.LeftHand);
+
+            if (HoldablesToRemove.Count > 0)
+            {
+                HoldablesToRemove.ForEach(a =>
+                {
+                    InitalizedHoldables.Remove(a);
+                    InitalizedHoldablesDict.Remove(a.BasePath);
+                });
+                HoldablesToRemove.Clear();
+            }
 
             // Favourites, 10:04 PM 7/3/2023
             foreach (Holdable holdable in InitalizedHoldables)
@@ -324,58 +375,87 @@ namespace HoldablePad.Scripts
                     Slots = newPageObject.transform.Find("Items").GetComponent<RectTransform>(),
                     PreviewBase = newPageObject.transform.Find("HandheldLocation").GetComponent<RectTransform>()
                 };
-                HoldableList[1].MenuPages.Add(newPage);
 
-                var holdablePreviewObject = Instantiate(holdable.HoldableObject);
-                holdable.PreviewObject = holdablePreviewObject;
-
-                bool isLeftHand = bool.Parse(holdable.GetHoldableProp(Holdable.HoldablePropType.IsLeftHand).ToString());
-                Transform handTransform = isLeftHand ? newPage.PreviewBase.Find("LeftExporter") : newPage.PreviewBase.Find("RightExporter");
-                holdablePreviewObject.transform.SetParent(handTransform, false);
-
-                var componentTypes = new List<Type>() { typeof(ParticleSystem), typeof(TrailRenderer), typeof(AudioSource), typeof(Light), typeof(VideoPlayer), typeof(LODGroup), typeof(AudioListener) };
-                var componentsList = holdablePreviewObject.GetComponentsInChildren(typeof(Component)).Where(a => componentTypes.Contains(a.GetType()));
-                foreach (var component in componentsList) Destroy(component);
-
-                newPage.Header.text = holdable.GetHoldableProp(Holdable.HoldablePropType.Name).ToString();
-                newPage.Author.text = string.Concat("Holdable by ", holdable.GetHoldableProp(Holdable.HoldablePropType.Author).ToString());
-                newPage.Description.text = holdable.GetHoldableProp(Holdable.HoldablePropType.Description).ToString();
-
-                bool isLeft = bool.Parse(holdable.GetHoldableProp(Holdable.HoldablePropType.IsLeftHand).ToString());
-                holdableTransform.Find("UI/ButtonTextMiddle").GetComponent<Text>().text = HoldableUtils.IsEquipped(holdable) ? "Unequip" : $"Equip ({(isLeft ? "Left" : "Right")})";
-
-                object colourProp = holdable.GetHoldableProp(Holdable.HoldablePropType.UtilizeCustomColour);
-                bool customColour = colourProp != null && bool.Parse(colourProp.ToString());
-
-                bool isGun = holdable.InstantiatedObject.GetComponentInChildren<HoldableGun>() != null;
-                bool gunHaptic = isGun && holdable.InstantiatedObject.GetComponentInChildren<HoldableGun>().ReferenceGun.VibrationModule;
-
-                var baseObject = holdable.HoldableObject;
-                newPage.SetSlots(
-                    baseObject.GetComponentsInChildren<AudioSource>().Where(a => a.name != "UsedBulletSoundEffect").ToArray().Length > 0,
-                    customColour,
-                    baseObject.GetComponentsInChildren<Light>().Where(a => a.type != LightType.Directional).ToArray().Length > 0,
-                    baseObject.GetComponentInChildren<ParticleSystem>() != null,
-                    isGun,
-                    gunHaptic
-                );
-
-                if (newPage.SlotsActive > 0)
+                try
                 {
-                    newPage.PreviewBase.localPosition = new Vector3(0f, -18.4f, -0.41f);
-                    newPage.PreviewBase.localScale = Vector3.one * 24.97094f;
-                }
-                else
-                {
-                    newPage.PreviewBase.localPosition = new Vector3(0f, -25.8f, -0.41f);
-                    newPage.PreviewBase.localScale = Vector3.one * 33.27129f;
-                }
+                    HoldableList[1].MenuPages.Add(newPage);
 
-                var currentHand = isLeft ? newPage.PreviewBase.Find("PreviewObject/metarig/hand_L") : newPage.PreviewBase.Find("PreviewObject/metarig/hand_R");
-                var hiddenHand = !isLeft ? newPage.PreviewBase.Find("PreviewObject/metarig/hand_L") : newPage.PreviewBase.Find("PreviewObject/metarig/hand_R");
-                currentHand.transform.localScale = Vector3.one; hiddenHand.transform.localScale = Vector3.zero;
+                    var holdablePreviewObject = Instantiate(holdable.HoldableObject);
+                    holdable.PreviewObject = holdablePreviewObject;
+
+                    bool isLeftHand = bool.Parse(holdable.GetHoldableProp(Holdable.HoldablePropType.IsLeftHand).ToString());
+                    Transform handTransform = isLeftHand ? newPage.PreviewBase.Find("LeftExporter") : newPage.PreviewBase.Find("RightExporter");
+                    holdablePreviewObject.transform.SetParent(handTransform, false);
+
+                    var componentTypes = new List<Type>() { typeof(ParticleSystem), typeof(TrailRenderer), typeof(AudioSource), typeof(Light), typeof(VideoPlayer), typeof(LODGroup), typeof(AudioListener) };
+                    var componentsList = holdablePreviewObject.GetComponentsInChildren(typeof(Component)).Where(a => componentTypes.Contains(a.GetType()));
+                    foreach (var component in componentsList) Destroy(component);
+
+                    newPage.Header.text = holdable.GetHoldableProp(Holdable.HoldablePropType.Name).ToString();
+                    newPage.Author.text = string.Concat("Holdable by ", holdable.GetHoldableProp(Holdable.HoldablePropType.Author).ToString());
+                    newPage.Description.text = holdable.GetHoldableProp(Holdable.HoldablePropType.Description).ToString();
+
+                    bool isLeft = bool.Parse(holdable.GetHoldableProp(Holdable.HoldablePropType.IsLeftHand).ToString());
+                    holdableTransform.Find("UI/ButtonTextMiddle").GetComponent<Text>().text = HoldableUtils.IsEquipped(holdable) ? "Unequip" : $"Equip ({(isLeft ? "Left" : "Right")})";
+
+                    object colourProp = holdable.GetHoldableProp(Holdable.HoldablePropType.UtilizeCustomColour);
+                    bool customColour = colourProp != null && bool.Parse(colourProp.ToString());
+
+                    bool isGun = holdable.InstantiatedObject.GetComponentInChildren<HoldableGun>() != null;
+                    bool gunHaptic = isGun && holdable.InstantiatedObject.GetComponentInChildren<HoldableGun>().ReferenceGun.VibrationModule;
+
+                    var baseObject = holdable.HoldableObject;
+
+                    var audioSources = baseObject.GetComponentsInChildren<AudioSource>();
+                    audioSources = audioSources.Length > 0 ? audioSources.Where(a => a.name != "UsedBulletSoundEffect").ToArray() : audioSources;
+
+                    var lights = baseObject.GetComponentsInChildren<Light>();
+                    lights = lights.Length > 0 ? lights.Where(a => a.type != LightType.Directional).ToArray() : lights;
+
+                    newPage.SetSlots(
+                        audioSources.Length > 0,
+                        customColour,
+                        lights.Length > 0,
+                        baseObject.GetComponentsInChildren<ParticleSystem>().Length > 0,
+                        isGun,
+                        gunHaptic
+                    );
+
+                    if (newPage.SlotsActive > 0)
+                    {
+                        newPage.PreviewBase.localPosition = new Vector3(0f, -18.4f, -0.41f);
+                        newPage.PreviewBase.localScale = Vector3.one * 24.97094f;
+                    }
+                    else
+                    {
+                        newPage.PreviewBase.localPosition = new Vector3(0f, -25.8f, -0.41f);
+                        newPage.PreviewBase.localScale = Vector3.one * 33.27129f;
+                    }
+
+                    var currentHand = isLeft ? newPage.PreviewBase.Find("PreviewObject/metarig/hand_L") : newPage.PreviewBase.Find("PreviewObject/metarig/hand_R");
+                    var hiddenHand = !isLeft ? newPage.PreviewBase.Find("PreviewObject/metarig/hand_L") : newPage.PreviewBase.Find("PreviewObject/metarig/hand_R");
+                    currentHand.transform.localScale = Vector3.one; hiddenHand.transform.localScale = Vector3.zero;
+                }
+                catch (Exception e)
+                {
+                    Logger.LogError("Exception (" + e.GetType().Name + ") while trying to create favourite object for " + holdable.GetHoldableProp(Holdable.HoldablePropType.Name));
+                    Destroy(newPageObject);
+
+                    HoldableList[1].MenuPages.Remove(newPage);
+                    HoldablesToRemove.Add(holdable);
+                }
             }
             HoldableList[1].IsFiltered = true;
+
+            if (HoldablesToRemove.Count > 0)
+            {
+                HoldablesToRemove.ForEach(a =>
+                {
+                    InitalizedHoldables.Remove(a);
+                    InitalizedHoldablesDict.Remove(a.BasePath);
+                });
+                HoldablesToRemove.Clear();
+            }
 
             gameObject.AddComponent<CustomColour>().ColourCheckMaterial = CC_Materials;
             HoldableList.ForEach(a => Destroy(holdableTransform.Find(a.BaseObjectPath).gameObject));
@@ -480,8 +560,14 @@ namespace HoldablePad.Scripts
             Initalized = true;
             MainResourceBundle.Unload(false);
 
-            Logger.Log("Finished initializing the mod! The pad can now be opened.");
-            HoldablePadHandheld.transform.Find("UI/BackPage/Flag").gameObject.SetActive(false);
+            HoldablePadHandheld.transform.Find("UI/BackPage/Flag").gameObject.SetActive(currentHoldableLength != InitalizedHoldables.Count);
+            HoldablePadHandheld.transform.Find("UI/BackPage/FlagText").GetComponent<Text>().text = currentHoldableLength == InitalizedHoldables.Count ? "" : Mathf.Abs(currentHoldableLength -  InitalizedHoldables.Count).ToString();
+
+            Logger.Write("");
+            Logger.Log("> " + Constants.Name + " (" + Constants.Version + ") was " + (currentHoldableLength == InitalizedHoldables.Count ? "fully loaded" : "loaded with issues"));
+            Logger.Log(" > Mod loaded in " + Mathf.RoundToInt((Time.unscaledTime - currentTime) / 0.01f) * 0.01f + " seconds");
+            Logger.Log(" > " + InitalizedHoldables.Count + "/" + currentHoldableLength + " holdables were loaded");
+            Logger.Write("");
         }
 
         /// <summary>
