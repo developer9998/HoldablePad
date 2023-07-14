@@ -7,8 +7,8 @@
             Name = "HoldablePad",
             Version = "1.4.2.0";
 
-        public const float PageLerp = 32;
-        public const int PageDisplay = 100;
+        public const float PageLerp = 28;
+        public const int PageDisplay = 85;
 
         public const string
             Asset_Resource = "HoldablePad.Resources.hp_builtin",
