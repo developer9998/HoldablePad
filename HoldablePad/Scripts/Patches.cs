@@ -32,5 +32,12 @@ namespace HoldablePad.Scripts
         [HarmonyPatch(typeof(GorillaScoreBoard), "RedrawPlayerLines"), HarmonyPrefix, HarmonyWrapSafe]
         public static void RedrawLinesPatch(GorillaScoreBoard __instance)
             => ScoreboardUtils.UpdateScoreboardHP(__instance);
+
+        [HarmonyPatch(typeof(TransferrableBall), "OnCollisionEnter"), HarmonyPrefix, HarmonyWrapSafe]
+        public static bool BallCollisionEnterPatch(Collision collision)
+        {
+            if (collision.rigidbody != null && collision.rigidbody.name.StartsWith("UsedBulletGameObject(Clone)")) return false;
+            return true;
+        }
     }
 }
