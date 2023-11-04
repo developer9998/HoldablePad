@@ -1,19 +1,19 @@
 ﻿using BepInEx;
 using HarmonyLib;
-using HoldablePad.Scripts;
+using HoldablePad.Behaviors;
 using System.Reflection;
 
 namespace HoldablePad
 {
-    [BepInPlugin(Constants.GUID, Constants.Name, Constants.Version)]
+    [BepInPlugin(Behaviors.Constants.GUID, Behaviors.Constants.Name, Behaviors.Constants.Version)]
     internal class HoldablePad : BaseUnityPlugin
     {
         internal void Awake()
         {
-            Scripts.Config.Initalize();
-            Scripts.Logger.manualLogSource = BepInEx.Logging.Logger.CreateLogSource(" " + Constants.Name);
+            Behaviors.Config.Initalize();
+            Behaviors.Logger.manualLogSource = BepInEx.Logging.Logger.CreateLogSource(" " + Behaviors.Constants.Name);
 
-            new Harmony(Constants.GUID).PatchAll(Assembly.GetExecutingAssembly());
+            new Harmony(Behaviors.Constants.GUID).PatchAll(Assembly.GetExecutingAssembly());
         }
     }
 }
