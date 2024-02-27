@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace HoldablePad.Behaviors
+namespace HoldablePad
 {
     public class Gun
     {

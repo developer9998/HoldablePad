@@ -1,14 +1,14 @@
-﻿using HoldablePad.Behaviors.Utils;
+﻿using HoldablePad.Utils;
 using System.Globalization;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.XR;
 
-namespace HoldablePad.Behaviors.Holdables
+namespace HoldablePad.Behaviours.Networking
 {
-    public class HoldableGun : MonoBehaviour
+    public class NetworkedGun : MonoBehaviour
     {
+        public VRRig ReferenceRig;
         public Gun ReferenceGun;
 
         public Holdable ReferenceHoldable;
@@ -26,7 +26,10 @@ namespace HoldablePad.Behaviors.Holdables
             };
             if (ReferenceGun.ProjectileObject == null || ReferenceGun.ProjectileSource == null) return;
 
-            // Recycled from base HoldablePad, still works fine
+            if (!Mathf.Approximately(ReferenceGun.ProjectileSource.spatialBlend, 1f))
+                ReferenceGun.ProjectileSource.spatialBlend = 1f;
+
+            // Recycled from base Plugin, still works fine
             string handheldData = ReferenceGun.ProjectileObject.GetComponent<Text>().text;
             string[] handheldInfo = handheldData.Split('$');
 
@@ -51,9 +54,7 @@ namespace HoldablePad.Behaviors.Holdables
 
         public void Update()
         {
-            VRRig ReferenceRig = GorillaTagger.Instance.offlineVRRig;
             bool triggerHeld = IsLeft ? ReferenceRig.leftIndex.calcT >= 0.65f : ReferenceRig.rightIndex.calcT >= 0.65f;
-
             if (Time.time >= LastTime && triggerHeld)
             {
                 LastTime = Time.time + ReferenceGun.ProjectCooldown;
@@ -64,7 +65,6 @@ namespace HoldablePad.Behaviors.Holdables
             {
                 if (triggerHeld)
                 {
-                    GorillaTagger.Instance.StartVibration(IsLeft, ReferenceGun.VibrationAmp, Time.deltaTime);
                     if (!ReferenceGun.ProjectileSource.isPlaying)
                         ReferenceGun.ProjectileSource.Play();
                 }
@@ -78,7 +78,6 @@ namespace HoldablePad.Behaviors.Holdables
             if (!ReferenceGun.LoopAudio)
             {
                 ReferenceGun.ProjectileSource.Play();
-                if (ReferenceGun.VibrationModule) GorillaTagger.Instance.StartVibration(IsLeft, ReferenceGun.VibrationAmp, ReferenceGun.VibrationDur);
             }
 
             var ProjectedBullet = Instantiate(ReferenceGun.ProjectileObject.gameObject);
@@ -94,9 +93,9 @@ namespace HoldablePad.Behaviors.Holdables
             foreach (var component in TempBulletTransform.GetComponentsInChildren<TrailRenderer>()) component.enabled = true;
             foreach (var component in TempBulletTransform.GetComponentsInChildren<Light>()) component.enabled = true;
 
-            var localProjectile = ProjectedBullet.AddComponent<HoldableProjectile>();
-            localProjectile.ReferenceHoldable = this;
-            localProjectile.targetVelocity = (PlayerUtils.GetPalm(IsLeft).up - Vector3.up * 0.18f) * ReferenceGun.ProjectSpeed * Constants.ProjectileMultiplier;
+            var networkedProjectile = ProjectedBullet.AddComponent<NetworkedProjectile>();
+            networkedProjectile.ReferenceHoldable = this;
+            networkedProjectile.targetVelocity = (PlayerUtils.GetPalm(ReferenceRig, IsLeft).up - Vector3.up * 0.18f) * ReferenceGun.ProjectSpeed * Constants.ProjectileMultiplier;
         }
     }
 }

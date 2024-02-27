@@ -1,18 +1,18 @@
-﻿namespace HoldablePad.Behaviors
+﻿namespace HoldablePad
 {
     public class Constants
     {
         public const string
-            GUID = "dev.HoldablePad",
-            Name = "HoldablePad",
+            GUID = "dev.Plugin",
+            Name = "Plugin",
             Version = "1.4.3";
 
         public const float PageLerp = 28;
         public const int PageDisplay = 85;
 
         public const string
-            Asset_Resource = "HoldablePad.Resources.hp_builtin",
-            Asset_Holdable = "HoldablePad.Resources.Holdables.";
+            Asset_Resource = "Plugin.Resources.hp_builtin",
+            Asset_Holdable = "Plugin.Resources.Holdables.";
 
         public const string
             File_External = "*.holdable",

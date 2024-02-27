@@ -1,7 +1,7 @@
 ﻿using GorillaExtensions;
 using UnityEngine;
 
-namespace HoldablePad.Behaviors.Networking
+namespace HoldablePad.Behaviours.Networking
 {
     public class NetworkedProjectile : MonoBehaviour
     {
@@ -24,12 +24,12 @@ namespace HoldablePad.Behaviors.Networking
 
         public void OnCollisionEnter(Collision collision)
         {
-            if (collision.gameObject.TryGetComponent<HitTargetWithScoreCounter>(out var hitTargetWithScoreCounter))
+            if (collision.gameObject.TryGetComponent(out HitTargetNetworkState networkState))
             {
                 // This is done client sided, so it shouldn't do much
                 // EDIT: Other players with the mod with the gun will also see these changes, but no one else. I also found out it can be used to pop balloons and splash water, 7:42 AM 7/2/2023
                 // https://cdn.discordapp.com/attachments/1053828669015085128/1124978242206584934/2023-07-02_04-20-49.mp4
-                hitTargetWithScoreCounter.TargetHit();
+                networkState.TargetHit();
             }
             Destroy(gameObject);
         }

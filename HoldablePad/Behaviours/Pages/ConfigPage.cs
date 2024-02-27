@@ -2,7 +2,7 @@
 using System.Linq;
 using UnityEngine;
 
-namespace HoldablePad.Behaviors.Pages
+namespace HoldablePad.Behaviours.Pages
 {
     public class ConfigPage : Page
     {
@@ -19,18 +19,18 @@ namespace HoldablePad.Behaviors.Pages
                 var buttonPage = button.CurrentPage;
                 if (buttonPage == Button.ButtonPage.ConfigHand)
                 {
-                    bool handButtonActive = button.name == "Config_LeftHand" && Config.CurrentHand.Value == Config.HandPosition.LeftHand || button.name == "Config_RightHand" && Config.CurrentHand.Value == Config.HandPosition.RightHand;
+                    bool handButtonActive = button.name == "Config_LeftHand" && HP_Config.CurrentHand.Value == HP_Config.HandPosition.LeftHand || button.name == "Config_RightHand" && HP_Config.CurrentHand.Value == HP_Config.HandPosition.RightHand;
                     button.ButtonPressMethod(handButtonActive);
                     continue;
                 }
 
                 if (buttonPage == Button.ButtonPage.ConfigSwap)
                 {
-                    button.ButtonPressMethod(Config.SwapHands.Value);
+                    button.ButtonPressMethod(HP_Config.SwapHands.Value);
                     continue;
                 }
 
-                int currentThemeIndex = (int)Config.CurrentTheme.Value;
+                int currentThemeIndex = (int)HP_Config.CurrentTheme.Value;
                 List<Button> themeButton = buttons.Where(a => a.CurrentPage == Button.ButtonPage.ConfigTheme).ToList();
                 bool themeButtonActive = themeButton.IndexOf(button) == currentThemeIndex;
                 button.ButtonPressMethod(themeButtonActive);
@@ -45,35 +45,35 @@ namespace HoldablePad.Behaviors.Pages
 
         public void SaveConfig()
         {
-            Config.HandPosition currentHandPosition = Config.HandPosition.LeftHand;
-            Config.PadTheme currentTheme = Config.PadTheme.Default;
+            HP_Config.HandPosition currentHandPosition = HP_Config.HandPosition.LeftHand;
+            HP_Config.PadTheme currentTheme = HP_Config.PadTheme.Default;
 
             var activeButtons = buttons.Where(a => a.Pressed);
             foreach (var button in activeButtons)
             {
                 if (button.CurrentPage == Button.ButtonPage.ConfigHand)
                 {
-                    currentHandPosition = button.name == "Config_LeftHand" ? Config.HandPosition.LeftHand : Config.HandPosition.RightHand;
+                    currentHandPosition = button.name == "Config_LeftHand" ? HP_Config.HandPosition.LeftHand : HP_Config.HandPosition.RightHand;
                     continue;
                 }
                 if (button.CurrentPage == Button.ButtonPage.ConfigTheme)
                 {
                     List<Button> themeButton = buttons.Where(a => a.CurrentPage == Button.ButtonPage.ConfigTheme).ToList();
                     int themeIndex = themeButton.IndexOf(button);
-                    currentTheme = (Config.PadTheme)themeIndex;
+                    currentTheme = (HP_Config.PadTheme)themeIndex;
                 }
             }
 
             var swapButton = buttons.First(a => a.CurrentPage == Button.ButtonPage.ConfigSwap);
             bool currentSwapState = swapButton.Pressed;
 
-            Config.CurrentHand.Value = currentHandPosition;
-            Config.SwapHands.Value = currentSwapState;
-            Config.CurrentTheme.Value = currentTheme;
-            Config.ConfigFile.Save();
+            HP_Config.CurrentHand.Value = currentHandPosition;
+            HP_Config.SwapHands.Value = currentSwapState;
+            HP_Config.CurrentTheme.Value = currentTheme;
+            HP_Config.ConfigFile.Save();
 
-            Main.Instance.SetFavoruiteButtonSide(currentHandPosition == Config.HandPosition.LeftHand);
-            Main.Instance.SetPadHand(currentHandPosition == Config.HandPosition.LeftHand);
+            Main.Instance.SetFavoruiteButtonSide(currentHandPosition == HP_Config.HandPosition.LeftHand);
+            Main.Instance.SetPadHand(currentHandPosition == HP_Config.HandPosition.LeftHand);
             Main.Instance.SetPadTheme(currentTheme);
         }
     }

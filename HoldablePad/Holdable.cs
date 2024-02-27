@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using UnityEngine;
 
-namespace HoldablePad.Behaviors.Holdables
+namespace HoldablePad
 {
     public class Holdable
     {

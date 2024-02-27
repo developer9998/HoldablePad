@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace HoldablePad.Behaviors.Pages
+namespace HoldablePad
 {
     public class List
     {

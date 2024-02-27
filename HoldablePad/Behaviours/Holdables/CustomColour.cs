@@ -1,9 +1,8 @@
-﻿using HoldablePad.Behaviors;
-using HoldablePad.Behaviors.Networking;
+﻿using HoldablePad.Behaviours.Networking;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace HoldablePad.Behaviors.Holdables
+namespace HoldablePad.Behaviours.Holdables
 {
     public class CustomColour : MonoBehaviour
     {

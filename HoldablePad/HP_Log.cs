@@ -2,9 +2,9 @@
 using System;
 using System.IO;
 
-namespace HoldablePad.Behaviors
+namespace HoldablePad
 {
-    public static class Logger
+    public static class HP_Log
     {
         public static ManualLogSource manualLogSource;
         private static string LogPath => BepInEx.Paths.BepInExRootPath + "/HPLog.txt";
@@ -42,7 +42,7 @@ namespace HoldablePad.Behaviors
             {
                 LoggedMessage = true;
                 using (StreamWriter streamWriter = File.AppendText(LogPath))
-                    streamWriter.WriteLine("> HoldablePad logs for " + DateTime.Now.ToString("g") + "\n");
+                    streamWriter.WriteLine("> Plugin logs for " + DateTime.Now.ToString("g") + "\n");
             }
 
             using (StreamWriter streamWriter = File.AppendText(LogPath))

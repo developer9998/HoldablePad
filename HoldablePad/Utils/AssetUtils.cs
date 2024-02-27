@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace HoldablePad.Behaviors.Utils
+namespace HoldablePad.Utils
 {
     public static class AssetUtils
     {

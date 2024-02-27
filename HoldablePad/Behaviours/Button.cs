@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.XR;
 
-namespace HoldablePad.Behaviors
+namespace HoldablePad.Behaviours
 {
     public class Button : MonoBehaviour
     {
@@ -97,7 +97,7 @@ namespace HoldablePad.Behaviors
 
         private async void OnPress(GorillaTriggerColliderHandIndicator handIndicator)
         {
-            if (handIndicator == null || handIndicator.isLeftHand == (Config.CurrentHand.Value == Config.HandPosition.LeftHand)) return;
+            if (handIndicator == null || handIndicator.isLeftHand == (HP_Config.CurrentHand.Value == HP_Config.HandPosition.LeftHand)) return;
             if (CurrentPage == ButtonPage.Main)
             {
                 Pressed = true;
