@@ -3,7 +3,7 @@
  <a href="https://github.com/developer9998/HoldablePad/blob/main/LICENSE/">   
  <a href="https://github.com/developer9998/HoldablePad/blob/main/LICENSE/">   
  <img src="https://img.shields.io/github/license/developer9998/HoldablePad?label=License&style=flat-square"</img></a>
- <a href="https://github.com/ZlothY29IQ/HoldablePad/releases/latest">
+ <a href="https://github.com/developer9998/HoldablePad/releases/latest">
  <img src="https://img.shields.io/github/downloads/developer9998/HoldablePad/total?label=Downloads&style=flat-square"<img></a>
  <a href="https://discord.gg/dev9998">
  <img src="https://img.shields.io/discord/989239017511989258?label=Discord&style=flat-square"</img></a>
@@ -13,7 +13,7 @@
 HoldablePad is a PC mod for the Virtual Reality game Gorilla Tag which allows players to use custom holdable cosmetics.
 
 ## Where do I download the mod?
-You can download the mod at it's latest release, which can be found [here.](https://github.com/ZlothY29IQ/HoldablePad/releases/latest)
+You can download the mod at it's latest release, which can be found [here.](https://github.com/developer9998/HoldablePad/releases/latest)
 
 ## How do I install the mod?
 To install the mod, locate your BepInEx directory and put the mod into the "plugins" folder.<br>
