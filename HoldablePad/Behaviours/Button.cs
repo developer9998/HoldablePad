@@ -85,7 +85,7 @@ namespace HoldablePad.Behaviours
 
         internal void OnTriggerEnter(Collider other)
         {
-            if (Player.Instance.inOverlay || Player.Instance.InReportMenu || Static.IsGlobalBtnCooldown && IsPage || Static.IsHoldableBtnCooldown)
+            if (GTPlayer.Instance.inOverlay || GTPlayer.Instance.InReportMenu || Static.IsGlobalBtnCooldown && IsPage || Static.IsHoldableBtnCooldown)
                 return;
 
             if (other.TryGetComponent(out GorillaTriggerColliderHandIndicator handIndicator))
