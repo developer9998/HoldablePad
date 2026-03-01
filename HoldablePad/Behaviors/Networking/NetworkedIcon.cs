@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace HoldablePad.Behaviours.Networking
+namespace HoldablePad.Behaviors.Networking
 {
     public class NetworkedIcon : MonoBehaviour
     {

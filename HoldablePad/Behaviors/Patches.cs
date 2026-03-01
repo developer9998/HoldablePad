@@ -1,9 +1,9 @@
 ﻿using HarmonyLib;
-using HoldablePad.Behaviours;
-using HoldablePad.Behaviours.Networking;
+using HoldablePad.Behaviors.Networking;
+using HoldablePad.Behaviors.Utils;
 using UnityEngine;
 
-namespace HoldablePad
+namespace HoldablePad.Behaviors
 {
     [HarmonyPatch]
     public static class Patches
@@ -28,6 +28,10 @@ namespace HoldablePad
                 return;
             client.currentColour = color;
         }
+
+        [HarmonyPatch(typeof(GorillaScoreBoard), "RedrawPlayerLines"), HarmonyPrefix, HarmonyWrapSafe]
+        public static void RedrawLinesPatch(GorillaScoreBoard __instance)
+            => ScoreboardUtils.UpdateScoreboardHP(__instance);
 
         [HarmonyPatch(typeof(TransferrableBall), "OnCollisionEnter"), HarmonyPrefix, HarmonyWrapSafe]
         public static bool BallCollisionEnterPatch(Collision collision)

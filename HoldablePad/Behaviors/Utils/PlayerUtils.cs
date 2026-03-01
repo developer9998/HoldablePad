@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace HoldablePad.Utils
+namespace HoldablePad.Behaviors.Utils
 {
     public static class PlayerUtils
     {

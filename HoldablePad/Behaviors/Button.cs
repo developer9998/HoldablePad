@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.XR;
 
-namespace HoldablePad.Behaviours
+namespace HoldablePad.Behaviors
 {
     public class Button : MonoBehaviour
     {
@@ -85,7 +85,7 @@ namespace HoldablePad.Behaviours
 
         internal void OnTriggerEnter(Collider other)
         {
-            if (GTPlayer.Instance.inOverlay || GTPlayer.Instance.InReportMenu || Static.IsGlobalBtnCooldown && IsPage || Static.IsHoldableBtnCooldown)
+            if (Player.Instance.inOverlay || Player.Instance.InReportMenu || Static.IsGlobalBtnCooldown && IsPage || Static.IsHoldableBtnCooldown)
                 return;
 
             if (other.TryGetComponent(out GorillaTriggerColliderHandIndicator handIndicator))
@@ -97,7 +97,7 @@ namespace HoldablePad.Behaviours
 
         private async void OnPress(GorillaTriggerColliderHandIndicator handIndicator)
         {
-            if (handIndicator == null || handIndicator.isLeftHand == (HP_Config.CurrentHand.Value == HP_Config.HandPosition.LeftHand)) return;
+            if (handIndicator == null || handIndicator.isLeftHand == (Config.CurrentHand.Value == Config.HandPosition.LeftHand)) return;
             if (CurrentPage == ButtonPage.Main)
             {
                 Pressed = true;

@@ -1,18 +1,19 @@
-﻿using HoldablePad.Behaviours.Holdables;
+﻿using HoldablePad.Behaviors;
+using HoldablePad.Behaviors.Holdables;
 using Photon.Realtime;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace HoldablePad.Behaviours.Networking
+namespace HoldablePad.Behaviors.Networking
 {
     public class Client : MonoBehaviour
     {
         public bool ClientLoaded;
 
         /// <summary>
-        /// If/was this client is using Plugin
+        /// If/was this client is using HoldablePad
         /// </summary>
         public bool
             IsHoldablePadUser,
@@ -119,7 +120,7 @@ namespace HoldablePad.Behaviours.Networking
 
             if (isLeftHand != vouchSourceBool)
             {
-                HP_Log.LogWarning("This holdable should not be vouching for this CustomProperty. Vouch: " + vouchSourceBool + " IsLeftHand: " + isLeftHand + " Holdable Name: " + holdable.GetHoldableProp(Holdable.HoldablePropType.Name).ToString());
+                Logger.LogWarning("This holdable should not be vouching for this CustomProperty. Vouch: " + vouchSourceBool + " IsLeftHand: " + isLeftHand + " Holdable Name: " + holdable.GetHoldableProp(Holdable.HoldablePropType.Name).ToString());
                 return;
             }
 

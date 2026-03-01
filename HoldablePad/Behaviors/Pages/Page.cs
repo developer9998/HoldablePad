@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-namespace HoldablePad
+namespace HoldablePad.Behaviors.Pages
 {
     public class Page
     {

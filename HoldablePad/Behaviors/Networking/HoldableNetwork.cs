@@ -1,5 +1,6 @@
 ﻿using ExitGames.Client.Photon;
-using GorillaTag;
+using HoldablePad.Behaviors.Holdables;
+using HoldablePad.Behaviors.Utils;
 using Photon.Pun;
 using Photon.Realtime;
 using System;
@@ -7,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace HoldablePad.Behaviours.Networking
+namespace HoldablePad.Behaviors.Networking
 {
     public class HoldableNetwork : MonoBehaviourPunCallbacks
     {
@@ -39,6 +40,10 @@ namespace HoldablePad.Behaviours.Networking
                     CheckHoldables(tempClient, player.CustomProperties);
                 }
             }
+
+            await Task.Delay(250);
+            if (currentClientCount != Clients.Count && ScoreboardUtils.GetAllScoreboards() is var scoreboards && scoreboards.Count > 0)
+                scoreboards.ForEach(a => ScoreboardUtils.UpdateScoreboardHP(a));
         }
 
         public async override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
@@ -71,7 +76,7 @@ namespace HoldablePad.Behaviours.Networking
             }
             catch (Exception e)
             {
-                HP_Log.LogError("Error with OnPlayerPropertiesUpdate: " + e.ToString());
+                Logger.LogError("Error with OnPlayerPropertiesUpdate: " + e.ToString());
             }
         }
 
@@ -112,8 +117,9 @@ namespace HoldablePad.Behaviours.Networking
         {
             base.OnLeftRoom();
 
-            if (!GTAppState.isQuitting)
+            if (!GorillaTagger.Instance.offlineVRRig.isQuitting)
             {
+                ScoreboardUtils.cachedLines.Clear();
                 Clients.Values.ToList().ForEach(x => Destroy(x)); // Remove all the clients
                 Clients.Clear();
             }
@@ -125,6 +131,10 @@ namespace HoldablePad.Behaviours.Networking
 
             if (Clients.ContainsKey(otherPlayer))
             {
+                // https://stackoverflow.com/a/2444064/21090957
+                var myKey = ScoreboardUtils.cachedLines.FirstOrDefault(x => x.Value == otherPlayer).Key;
+                ScoreboardUtils.cachedLines.Remove(myKey);
+
                 Destroy(Clients[otherPlayer]);
                 Clients.Remove(otherPlayer);
             }

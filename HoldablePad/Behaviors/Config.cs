@@ -2,9 +2,9 @@
 using BepInEx.Configuration;
 using System.IO;
 
-namespace HoldablePad
+namespace HoldablePad.Behaviors
 {
-    public static class HP_Config
+    public static class Config
     {
         public static ConfigFile ConfigFile { get; private set; }
 

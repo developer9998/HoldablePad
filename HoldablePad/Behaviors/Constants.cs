@@ -1,12 +1,11 @@
-﻿namespace HoldablePad
+﻿namespace HoldablePad.Behaviors
 {
     public class Constants
     {
         public const string
-            GUID = "dev.zlothfix.HoldablePad",
-            //zloth the builder, she can fix it!
+            GUID = "dev.HoldablePad",
             Name = "HoldablePad",
-            Version = "1.5.0";
+            Version = "1.4.3";
 
         public const float PageLerp = 28;
         public const int PageDisplay = 85;
